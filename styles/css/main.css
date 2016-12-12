@@ -1,0 +1,17 @@
+.input-project {
+  outline: 0;
+  border: 0;
+  border-bottom: 1px solid #bdc3c7;
+  width: 66%;
+  font-size: 1.4rem;
+}
+html {
+  font-family: helvetica, arial, sans-serif;
+  margin: 0;
+}
+body {
+  font-size: 62.5%;
+  padding: 1.5rem 0.5rem;
+}
+
+/*# sourceMappingURL=data:application/json;charset=utf8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImZvcm1zLnN0eWwiLCJtYWluLnN0eWwiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBRUE7RUFDRSxTQUFTLEVBQVQ7RUFDQSxRQUFRLEVBQVI7RUFDQSxlQUFlLGtCQUFmO0VBQ0EsT0FBTyxJQUFQO0VBQ0EsV0FBVyxPQUFYOztBQ0xGO0VBQ0UsYUFBc0IsNkJBQXRCO0VBQ0EsUUFBUSxFQUFSOztBQUVGO0VBQ0UsV0FBVyxNQUFYO0VBQ0EsU0FBUyxjQUFUIiwiZmlsZSI6Im1haW4uY3NzIiwic291cmNlc0NvbnRlbnQiOlsiQGltcG9ydCAnY29sb3JzJ1xuXG4uaW5wdXQtcHJvamVjdFxuICBvdXRsaW5lOiAwXG4gIGJvcmRlcjogMFxuICBib3JkZXItYm90dG9tOiAxcHggc29saWQgZ3JleVxuICB3aWR0aDogNjYlXG4gIGZvbnQtc2l6ZTogMS40cmVtXG4iLCJAcmVxdWlyZSAnZm9ybXMnXG5cbmh0bWxcbiAgZm9udC1mYW1pbHk6IGhlbHZldGljYSwgYXJpYWwsIHNhbnMtc2VyaWZcbiAgbWFyZ2luOiAwXG5cbmJvZHlcbiAgZm9udC1zaXplOiA2Mi41JVxuICBwYWRkaW5nOiAxLjVyZW0gMC41cmVtXG4iXX0= */

@@ -9,6 +9,16 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "electron": "^1.4.12"
+    "electron": "^1.4.12",
+    "electron-json-storage": "^2.1.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^6.5.3",
+    "gulp": "^3.9.1",
+    "gulp-data": "^1.2.1",
+    "gulp-postcss": "^6.2.0",
+    "gulp-rm": "^1.0.2",
+    "gulp-sourcemaps": "^1.9.1",
+    "gulp-stylus": "^2.6.0"
   }
 }
