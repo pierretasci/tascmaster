@@ -10,7 +10,8 @@
   "license": "MIT",
   "dependencies": {
     "electron": "^1.4.12",
-    "electron-json-storage": "^2.1.0"
+    "electron-json-storage": "^2.1.0",
+    "vue": "^2.1.4"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.3",
@@ -19,6 +20,9 @@
     "gulp-postcss": "^6.2.0",
     "gulp-rm": "^1.0.2",
     "gulp-sourcemaps": "^1.9.1",
-    "gulp-stylus": "^2.6.0"
+    "gulp-stylus": "^2.6.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "webpack-stream": "^3.2.0"
   }
 }

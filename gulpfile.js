@@ -1,23 +1,34 @@
 // == REQUIRES ==
 const gulp = require('gulp');
 
-const stylus     = require('gulp-stylus');
-const sourcemaps = require('gulp-sourcemaps');
+const buffer     = require('vinyl-buffer');
 const postcss    = require('gulp-postcss');
 const rm         = require('gulp-rm');
-
+const source     = require('vinyl-source-stream');
+const sourcemaps = require('gulp-sourcemaps');
+const stylus     = require('gulp-stylus');
+const webpack    = require('webpack-stream');
 
 // == DIRECTORIES ==
 const STYLUS_DIR = './styles/stylus/**/*.styl';
 const STYLUS_ROOTDIR = './styles';
 const CSS_DIR = './styles/css/**/*.css';
+const SCRIPT_DIR = './scripts/**/*.js';
+const SCRIPT_ENTRY = './scripts/main.js';
 
 gulp.task('clean-css', () => {
   return gulp.src('./build/**/*.css')
     .pipe(rm());
 });
 
-gulp.task('clean', ['clean-css']);
+gulp.task('clean-js', () => {
+  return gulp.src('./build/**/*.js')
+    .pipe(rm());
+});
+
+gulp.task('clean', ['clean-css', 'clean-js']);
+
+// == STYLES ==
 
 gulp.task('stylus-build', () => {
   return gulp.src(STYLUS_DIR)
@@ -37,10 +48,32 @@ gulp.task('css', ['clean-css', 'stylus-build'], () => {
       .pipe(gulp.dest('./build'));
 });
 
+// == SCRIPTS ==
+
+gulp.task('js', function() {
+  return gulp.src(SCRIPT_ENTRY)
+    .pipe(webpack({
+      output: {
+        filename: 'app.js',
+      },
+      resolve: {
+        alias: {
+          'vue$': 'vue/dist/vue.common.js',
+        },
+      },
+    }))
+    .pipe(gulp.dest('./build'));
+});
+
+// == MISC ==
+
 gulp.task('stylus-watch', () => {
   return gulp.watch(STYLUS_DIR, ['css']);
 });
 
-gulp.task('watch', ['stylus-watch']);
+gulp.task('js-watch', () => {
+  return gulp.watch(SCRIPT_DIR, ['js']);
+});
 
-gulp.task('default', ['clean', 'css', 'watch']);
+gulp.task('watch', ['stylus-watch', 'js-watch']);
+gulp.task('default', ['clean', 'css', 'js', 'watch']);
