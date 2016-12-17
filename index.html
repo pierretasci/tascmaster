@@ -8,11 +8,11 @@
   </head>
   <body style='-webkit-app-region: no-drag'>
     <div class="container" id="app">
-      <div class="line">
-        <input type="text" placeholder="Project name..." class="input-project">
-        {{elapsed}}
-      </div>
-      <button v-on:click="startTimer">Start</button>
+      <project-item
+        v-for="project in projects"
+        v-bind:project="project">
+      </project-item>
+      <new-project />
     </div>
   </body>
 

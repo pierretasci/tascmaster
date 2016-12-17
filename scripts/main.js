@@ -1,17 +1,21 @@
 const Vue = require('vue');
+const Vuex = require('vuex');
+Vue.use(Vuex)
+
+const store = require('./store');
+
+const NewProject = require('./NewProject.vue');
+const ProjectItem = require('./ProjectItem.vue');
 
 var app = new Vue({
   el: '#app',
-  data: {
-    time: -1,
-    timenow: Math.trunc((new Date()).getTime() / 1000),
+  components: {
+    'new-project': NewProject,
+    'project-item': ProjectItem,
   },
   computed: {
-    elapsed: function() {
-      if (this.time < 0) {
-        return null;
-      }
-      return this.timenow - this.time;
+    projects: function() {
+      return store.state.projects;
     },
   },
   methods: {
@@ -23,4 +27,9 @@ var app = new Vue({
       }, 1000);
     },
   },
+  store,
 });
+
+let ticker = window.setInterval(function() {
+  store.commit('updateTime');
+}, 1000);

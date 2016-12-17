@@ -13,7 +13,7 @@ const webpack    = require('webpack-stream');
 const STYLUS_DIR = './styles/stylus/**/*.styl';
 const STYLUS_ROOTDIR = './styles';
 const CSS_DIR = './styles/css/**/*.css';
-const SCRIPT_DIR = './scripts/**/*.js';
+const SCRIPT_DIR = './scripts/**/*';
 const SCRIPT_ENTRY = './scripts/main.js';
 
 gulp.task('clean-css', () => {
@@ -52,9 +52,24 @@ gulp.task('css', ['clean-css', 'stylus-build'], () => {
 
 gulp.task('js', function() {
   return gulp.src(SCRIPT_ENTRY)
+    .pipe(sourcemaps.init())
     .pipe(webpack({
+      devtool: 'source-map',
       output: {
         filename: 'app.js',
+      },
+      module: {
+        loaders: [
+          {
+            test: /\.vue$/,
+            loader: 'vue-loader'
+          },
+          {
+            test: /\.js$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/
+          },
+        ],
       },
       resolve: {
         alias: {
@@ -62,6 +77,10 @@ gulp.task('js', function() {
         },
       },
     }))
+    .on('error', function handleError() {
+      this.emit('end'); // Recover from errors
+    })
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('./build'));
 });
 
