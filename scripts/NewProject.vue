@@ -51,9 +51,6 @@ module.exports = {
       let newProject = {
         id: nameToId(this.project_name),
         name: this.project_name,
-        increments: [],
-        elapsed: 0,
-        currentStart: -1,
       };
       if (validateProject(newProject)) {
         this.$store.commit('addProject', newProject);

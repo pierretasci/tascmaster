@@ -4,6 +4,8 @@
     .elapsed(v-if="project.active") {{elapsedTime}}
     .start(v-if="!project.active")
       button(type="button",@click="start").btn.primary Start
+    .stop(v-if="project.active")
+      button(type="button",@click="stop").btn.primary Stop
 </template>
 
 <script>
@@ -34,6 +36,9 @@ module.exports = {
   methods: {
     start: function() {
       this.$store.commit('startTimer', this.project.id);
+    },
+    stop: function() {
+      this.$store.commit('stopTimer', this.project.id);
     }
   },
   props: ['project']

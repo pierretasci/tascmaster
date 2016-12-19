@@ -1,39 +1,80 @@
+const Vue = require('Vue');
 const Vuex = require('vuex');
+
+const CURRENT_TIME = function() {
+  return new Date().getTime();
+}
+
+const findProject = function(arr, id) {
+  if (!id) {
+    return  -1;
+  }
+
+  for(let i = 0; i < arr.length; ++i) {
+    if (arr[i].id === id) {
+      return i;
+    }
+  }
+  return -1;
+}
 
 module.exports = new Vuex.Store({
   state: {
-    projects: {
-      'project-1' : {
+    projects: [
+      {
         id: 'project-1',
         name: 'Project 1',
         increments: [],
         elapsed: 0,
-        currentStart: new Date().getTime(),
+        currentStart: CURRENT_TIME(),
         active: false
       },
-    },
-    currentTime: new Date().getTime(),
+    ],
+    currentTime: CURRENT_TIME(),
   },
   mutations: {
     addProject: function(state, project) {
-      if (typeof project !== 'undefined' && state.projects[project.id]) {
-        state.projects[project.id] = project;
+      if (typeof project !== 'undefined') {
+        state.projects.push({
+          id: project.id,
+          name: project.name,
+          increments: [],
+          currentStart: -1,
+          active: false,
+        });
       } else {
         return false;
       }
     },
 
     startTimer: function(state, project_id) {
-      if (!project_id || !state.projects[project_id]) {
+      const index = findProject(state.projects, project_id)
+      if (index < 0) {
         return false;
       }
 
-      state.projects[project_id].active = true;
-      state.projects[project_id].currentStart = new Date().getTime();
+      state.projects[index].active = true;
+      state.projects[index].currentStart = CURRENT_TIME();
+    },
+
+    stopTimer: function(state, project_id) {
+      const index = findProject(state.projects, project_id)
+      if (index < 0) {
+        return false;
+      }
+
+      const stopTime = CURRENT_TIME();
+
+      state.projects[index].active = false;
+      // Save this interval to the increments.
+      state.projects[index].increments.push({
+        start: state.projects[index].currentStart,
+        end: stopTime,
+      });
     },
 
     updateTime: function(state) {
-      state.currentTime = new Date().getTime();
+      state.currentTime = CURRENT_TIME();
     },
   }
 });
