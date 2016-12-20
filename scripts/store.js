@@ -1,9 +1,6 @@
 const Vue = require('Vue');
 const Vuex = require('vuex');
-
-const CURRENT_TIME = function() {
-  return new Date().getTime();
-}
+const CURRENT_TIME = require('./time');
 
 const findProject = function(arr, id) {
   if (!id) {

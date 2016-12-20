@@ -3,6 +3,7 @@ const Vuex = require('vuex');
 Vue.use(Vuex)
 const {ipcRenderer} = require('electron');
 const store = require('./store');
+const CURRENT_TIME = require('./time');
 
 const NewProject = require('./NewProject.vue');
 const ProjectItem = require('./ProjectItem.vue');
@@ -18,6 +19,27 @@ function getWindowHeight(numProjects) {
       (numProjects * PIXELS_BETWEEN_PROJECTS);
 }
 
+// Returns a better view of the projects for use in persisting them to disk.
+function cleanProjects(projects) {
+  return projects.map(function(p) {
+    if (p.active) {
+      p.increments.push({
+        start: p.currentStart,
+        end: CURRENT_TIME()
+      });
+    }
+    // When we persist the project, we always set it's active status time as
+    // false.
+    p.active = false
+    p.currentStart = -1;
+    return p;
+  });
+}
+
+function deepCopy(a) {
+  return JSON.parse(JSON.stringify(a));
+}
+
 var app = new Vue({
   el: '#app',
   components: {
@@ -27,10 +49,12 @@ var app = new Vue({
   computed: {
     projects: function() {
       // Update the size of the window.
+      const projects = store.state.projects;
       let newHeight =
       ipcRenderer.send('updateHeight',
-          getWindowHeight(store.state.projects.length));
-      return store.state.projects;
+          getWindowHeight(projects.length));
+      ipcRenderer.send('newState', cleanProjects(deepCopy(projects)));
+      return projects;
     },
   },
   methods: {
