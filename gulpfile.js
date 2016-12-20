@@ -76,6 +76,7 @@ gulp.task('js', function() {
           'vue$': 'vue/dist/vue.common.js',
         },
       },
+      target: 'electron',
     }))
     .on('error', function handleError() {
       this.emit('end'); // Recover from errors
