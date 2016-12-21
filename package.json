@@ -8,6 +8,7 @@
   },
   "author": "",
   "license": "MIT",
+  "productName": "TascMaster",
   "dependencies": {
     "electron": "^1.4.12",
     "fs": "0.0.1-security",
@@ -20,6 +21,7 @@
     "babel-loader": "^6.2.9",
     "babel-preset-es2015": "^6.18.0",
     "css-loader": "^0.26.1",
+    "electron-packager": "^8.4.0",
     "gulp": "^3.9.1",
     "gulp-data": "^1.2.1",
     "gulp-plumber": "^1.1.0",
