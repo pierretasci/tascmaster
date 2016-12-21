@@ -1,7 +1,9 @@
 const Vue = require('Vue');
 const Vuex = require('vuex');
+const { ipcRenderer } = require('electron');
 const CURRENT_TIME = require('./time');
 
+// == HELPER METHODS ==
 const findProject = function(arr, id) {
   if (!id) {
     return  -1;
@@ -15,18 +17,31 @@ const findProject = function(arr, id) {
   return -1;
 }
 
-module.exports = new Vuex.Store({
+// Returns a better view of the projects for use in persisting them to disk.
+function cleanProjects(projects) {
+  return projects.map(function(p) {
+    if (p.active) {
+      p.increments.push({
+        start: p.currentStart,
+        end: CURRENT_TIME()
+      });
+    }
+    // When we persist the project, we always set it's active status time as
+    // false.
+    p.active = false
+    p.currentStart = -1;
+    return p;
+  });
+}
+
+function deepCopy(a) {
+  return JSON.parse(JSON.stringify(a));
+}
+
+// == STORE ==
+const store = new Vuex.Store({
   state: {
-    projects: [
-      {
-        id: 'project-1',
-        name: 'Project 1',
-        increments: [],
-        elapsed: 0,
-        currentStart: CURRENT_TIME(),
-        active: false
-      },
-    ],
+    projects: [],
     currentTime: CURRENT_TIME(),
   },
   mutations: {
@@ -39,9 +54,17 @@ module.exports = new Vuex.Store({
           currentStart: -1,
           active: false,
         });
+
+        // Now that we have a new project, persist the new state.
+        persistState(state.projects);
       } else {
         return false;
       }
+    },
+
+    initializeProjects: function(state, newProjects) {
+      console.log(newProjects);
+      state.projects = newProjects;
     },
 
     startTimer: function(state, project_id) {
@@ -52,6 +75,8 @@ module.exports = new Vuex.Store({
 
       state.projects[index].active = true;
       state.projects[index].currentStart = CURRENT_TIME();
+
+      persistState(state.projects);
     },
 
     stopTimer: function(state, project_id) {
@@ -68,6 +93,8 @@ module.exports = new Vuex.Store({
         start: state.projects[index].currentStart,
         end: stopTime,
       });
+
+      persistState(state.projects);
     },
 
     updateTime: function(state) {
@@ -75,3 +102,18 @@ module.exports = new Vuex.Store({
     },
   }
 });
+module.exports = store;
+
+// == RUNNABLE ==
+// Start an interval to periodically persist the state.
+const persistState = function(projects) {
+  ipcRenderer.send('newState', cleanProjects(deepCopy(projects)));
+}
+let persistStateTicker = window.setInterval(() =>
+    persistState(store.state.projects), 5000);
+
+// Send a request to load the intial state of the app.
+ipcRenderer.once('receiveInitialState', (e, initialState) => {
+  store.commit('initializeProjects', initialState);
+});
+ipcRenderer.send('loadInitialState');

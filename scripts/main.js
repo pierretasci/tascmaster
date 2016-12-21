@@ -14,30 +14,13 @@ const PIXELS_PER_PROJECT = 38;
 const PIXELS_BETWEEN_PROJECTS = 2;
 
 function getWindowHeight(numProjects) {
-  return BASE_PADDING_PIXELS +
-      ((numProjects + 1) * PIXELS_PER_PROJECT) +
-      (numProjects * PIXELS_BETWEEN_PROJECTS);
-}
-
-// Returns a better view of the projects for use in persisting them to disk.
-function cleanProjects(projects) {
-  return projects.map(function(p) {
-    if (p.active) {
-      p.increments.push({
-        start: p.currentStart,
-        end: CURRENT_TIME()
-      });
-    }
-    // When we persist the project, we always set it's active status time as
-    // false.
-    p.active = false
-    p.currentStart = -1;
-    return p;
-  });
-}
-
-function deepCopy(a) {
-  return JSON.parse(JSON.stringify(a));
+  let nHeight = BASE_PADDING_PIXELS;
+  console.log(nHeight);
+  nHeight += (numProjects + 1) * PIXELS_PER_PROJECT;
+  console.log(nHeight);
+  nHeight += numProjects * PIXELS_BETWEEN_PROJECTS;
+  console.log(nHeight);
+  return nHeight;
 }
 
 var app = new Vue({
@@ -49,11 +32,11 @@ var app = new Vue({
   computed: {
     projects: function() {
       // Update the size of the window.
-      const projects = store.state.projects;
-      let newHeight =
-      ipcRenderer.send('updateHeight',
-          getWindowHeight(projects.length));
-      ipcRenderer.send('newState', cleanProjects(deepCopy(projects)));
+      const projects = store.state.projects || [];
+      const newHeight = getWindowHeight(projects.length);
+      console.log('Updating height to ' + newHeight);
+      ipcRenderer.send('updateHeight', newHeight);
+
       return projects;
     },
   },
@@ -68,6 +51,8 @@ var app = new Vue({
   },
   store,
 });
+
+// == Initialization ==
 
 let ticker = window.setInterval(function() {
   store.commit('updateTime');

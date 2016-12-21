@@ -5,8 +5,7 @@ const {app, BrowserWindow, ipcMain} = electron;
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
-
-const PROJECTS_FILE = path.join(app.getPath('userData'), 'state.txt');
+const { readState, writeState } = require('./lib/persistence');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -39,13 +38,6 @@ function createWindow () {
     // when you should delete the corresponding element.
     win = null;
   });
-
-  try {
-    const state = fs.readFileSync(PROJECTS_FILE, { encoding: 'utf8' });
-    console.log(state);
-  } catch(e) {
-    console.error(e);
-  }
 }
 
 // This method will be called when Electron has finished
@@ -72,12 +64,14 @@ app.on('activate', () => {
 
 ipcMain.on('updateHeight', (e, nHeight) => {
   const rectangle = win.getBounds();
-  console.log(rectangle);
   rectangle.height = nHeight;
-  console.log(rectangle);
   win.setBounds(rectangle, true);
 });
 
 ipcMain.on('newState', (e, state) => {
-   fs.writeFileSync(PROJECTS_FILE, JSON.stringify(state));
+  writeState(state);
 });
+
+ipcMain.on('loadInitialState', (e) => {
+  e.sender.send('receiveInitialState', readState());
+})
