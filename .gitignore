@@ -5,7 +5,4 @@ node_modules/*
 build/*
 
 # Built binaries
-tascmaster-darwin-x64
-tascmaster-darwin-x64/*
-tascmaster-linux-ia32
-tascmaster-linux-ia32/*
+TascMaster-*

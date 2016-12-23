@@ -62,8 +62,12 @@ const store = new Vuex.Store({
       }
     },
 
+    clearProjects: function(state) {
+      state.projects = [];
+      persistState(state.projects);
+    },
+
     initializeProjects: function(state, newProjects) {
-      console.log(newProjects);
       state.projects = newProjects;
     },
 
@@ -109,8 +113,8 @@ module.exports = store;
 const persistState = function(projects) {
   ipcRenderer.send('newState', cleanProjects(deepCopy(projects)));
 }
-let persistStateTicker = window.setInterval(() =>
-    persistState(store.state.projects), 5000);
+// let persistStateTicker = window.setInterval(() =>
+//     persistState(store.state.projects), 5000);
 
 // Send a request to load the intial state of the app.
 ipcRenderer.once('receiveInitialState', (e, initialState) => {

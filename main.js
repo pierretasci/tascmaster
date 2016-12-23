@@ -7,6 +7,9 @@ const url = require('url');
 const fs = require('fs');
 const { readState, writeState } = require('./lib/persistence');
 
+const DEFAULT_WINDOW_WIDTH = 400;
+const TITLE_BAR_SIZE = 22;
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -17,11 +20,12 @@ function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
     alwaysOnTop: true,
-    height: 50,
-    width: 400,
-    x: display.bounds.width,
+    height: 30,
+    width: DEFAULT_WINDOW_WIDTH,
+    x: display.bounds.width - DEFAULT_WINDOW_WIDTH,
     y: 0,
   });
+  console.log(win.getBounds());
   win.show();
 
   // and load the index.html of the app.
@@ -63,8 +67,9 @@ app.on('activate', () => {
 });
 
 ipcMain.on('updateHeight', (e, nHeight) => {
+  console.log('Request to update height to ' + nHeight);
   const rectangle = win.getBounds();
-  rectangle.height = nHeight;
+  rectangle.height = nHeight + TITLE_BAR_SIZE;
   win.setBounds(rectangle, true);
 });
 

@@ -2,11 +2,14 @@
 const gulp = require('gulp');
 
 const buffer     = require('vinyl-buffer');
+const cssnano    = require('cssnano');
 const postcss    = require('gulp-postcss');
 const rm         = require('gulp-rm');
+const sorting    = require('postcss-sorting');
 const source     = require('vinyl-source-stream');
 const sourcemaps = require('gulp-sourcemaps');
 const stylus     = require('gulp-stylus');
+const webpack_plugins = require('webpack');
 const webpack    = require('webpack-stream');
 
 // == DIRECTORIES ==
@@ -22,11 +25,9 @@ gulp.task('clean-css', () => {
 });
 
 gulp.task('clean-js', () => {
-  return gulp.src('./build/**/*.js')
+  return gulp.src(['./build/**/*.js', './build/**/*.js.map'])
     .pipe(rm());
 });
-
-gulp.task('clean', ['clean-css', 'clean-js']);
 
 // == STYLES ==
 
@@ -48,9 +49,19 @@ gulp.task('css', ['clean-css', 'stylus-build'], () => {
       .pipe(gulp.dest('./build'));
 });
 
+gulp.task('css-prod', ['clean-css', 'stylus-build'], () => {
+  gulp.src(CSS_DIR)
+      .pipe(postcss([
+        require('autoprefixer'),
+        sorting(),
+        cssnano(),
+      ]))
+      .pipe(gulp.dest('./build'));
+});
+
 // == SCRIPTS ==
 
-gulp.task('js', function() {
+gulp.task('js', ['clean-js'], function() {
   return gulp.src(SCRIPT_ENTRY)
     .pipe(sourcemaps.init())
     .pipe(webpack({
@@ -85,6 +96,39 @@ gulp.task('js', function() {
     .pipe(gulp.dest('./build'));
 });
 
+gulp.task('js-prod', ['clean-js'], function() {
+  return gulp.src(SCRIPT_ENTRY)
+    .pipe(webpack({
+      output: {
+        filename: 'app.js',
+      },
+      module: {
+        loaders: [
+          {
+            test: /\.vue$/,
+            loader: 'vue-loader'
+          },
+          {
+            test: /\.js$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/
+          },
+        ],
+      },
+      plugins: [
+        new webpack_plugins.optimize.DedupePlugin(),
+        new webpack_plugins.optimize.OccurrenceOrderPlugin(true),
+      ],
+      resolve: {
+        alias: {
+          'vue$': 'vue/dist/vue.common.js',
+        },
+      },
+      target: 'electron',
+    }))
+    .pipe(gulp.dest('./build'));
+});
+
 // == MISC ==
 
 gulp.task('stylus-watch', () => {
@@ -96,4 +140,6 @@ gulp.task('js-watch', () => {
 });
 
 gulp.task('watch', ['stylus-watch', 'js-watch']);
-gulp.task('default', ['clean', 'css', 'js', 'watch']);
+gulp.task('default', ['css', 'js', 'watch']);
+
+gulp.task('package', ['css-prod', 'js-prod']);

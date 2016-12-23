@@ -2,6 +2,7 @@ const Vue = require('vue');
 const Vuex = require('vuex');
 Vue.use(Vuex)
 const {ipcRenderer} = require('electron');
+const menu = require('./menu');
 const store = require('./store');
 const CURRENT_TIME = require('./time');
 
@@ -9,9 +10,9 @@ const NewProject = require('./NewProject.vue');
 const ProjectItem = require('./ProjectItem.vue');
 
 // Includes the size of the title bar and the padding around the body.
-const BASE_PADDING_PIXELS = 25;
-const PIXELS_PER_PROJECT = 38;
-const PIXELS_BETWEEN_PROJECTS = 2;
+const BASE_PADDING_PIXELS = 16;
+const PIXELS_PER_PROJECT = 31;
+const PIXELS_BETWEEN_PROJECTS = 8;
 
 function getWindowHeight(numProjects) {
   let nHeight = BASE_PADDING_PIXELS;
@@ -31,25 +32,17 @@ var app = new Vue({
   },
   computed: {
     projects: function() {
-      // Update the size of the window.
-      const projects = store.state.projects || [];
-      const newHeight = getWindowHeight(projects.length);
-      console.log('Updating height to ' + newHeight);
-      ipcRenderer.send('updateHeight', newHeight);
-
-      return projects;
-    },
-  },
-  methods: {
-    startTimer: function() {
-      this.time = Math.trunc((new Date()).getTime() / 1000);
-
-      window.setInterval(() => {
-        this.timenow = Math.trunc((new Date()).getTime() / 1000);
-      }, 1000);
+      return store.state.projects;
     },
   },
   store,
+  watch: {
+    projects: function(newProjects) {
+      const newHeight = getWindowHeight(newProjects.length || 0);
+      console.log('Updating height to ' + newHeight);
+      ipcRenderer.send('updateHeight', newHeight);
+    }
+  }
 });
 
 // == Initialization ==
