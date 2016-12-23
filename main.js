@@ -79,4 +79,4 @@ ipcMain.on('newState', (e, state) => {
 
 ipcMain.on('loadInitialState', (e) => {
   e.sender.send('receiveInitialState', readState());
-})
+});

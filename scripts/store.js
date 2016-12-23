@@ -38,6 +38,17 @@ function deepCopy(a) {
   return JSON.parse(JSON.stringify(a));
 }
 
+let ticker;
+const startTicker = function() {
+  ticker = window.setInterval(function() {
+    store.commit('updateTime');
+  }, 100);
+}
+const clearTicker = function() {
+  window.clearInterval(ticker);
+  ticker = null;
+}
+
 // == STORE ==
 const store = new Vuex.Store({
   state: {
@@ -76,6 +87,10 @@ const store = new Vuex.Store({
 
         // Now that we have a new project, persist the new state.
         persistState(state.projects);
+
+        if (!ticker) {
+          startTicker();
+        }
       } else {
         return false;
       }
@@ -100,6 +115,9 @@ const store = new Vuex.Store({
       state.projects[index].currentStart = CURRENT_TIME();
 
       persistState(state.projects);
+      if (!ticker) {
+        startTicker();
+      }
     },
 
     stopTimer: function(state, project_id) {
@@ -118,9 +136,17 @@ const store = new Vuex.Store({
       });
 
       persistState(state.projects);
+
+      for (const p in state.projects) {
+        if (p !== index && state.projects[p].active) {
+          return;
+        }
+      }
+      clearTicker();
     },
 
     updateTime: function(state) {
+      console.log('update time');
       state.currentTime = CURRENT_TIME();
     },
   }
@@ -132,8 +158,8 @@ module.exports = store;
 const persistState = function(projects) {
   ipcRenderer.send('newState', cleanProjects(deepCopy(projects)));
 }
-// let persistStateTicker = window.setInterval(() =>
-//     persistState(store.state.projects), 5000);
+let persistStateTicker = window.setInterval(() =>
+    persistState(store.state.projects), 5000);
 
 // Send a request to load the intial state of the app.
 ipcRenderer.once('receiveInitialState', (e, initialState) => {

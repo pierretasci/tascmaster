@@ -44,9 +44,3 @@ var app = new Vue({
     }
   }
 });
-
-// == Initialization ==
-
-let ticker = window.setInterval(function() {
-  store.commit('updateTime');
-}, 1000);
