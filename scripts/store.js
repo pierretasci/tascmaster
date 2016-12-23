@@ -46,13 +46,32 @@ const store = new Vuex.Store({
   },
   mutations: {
     addProject: function(state, project) {
-      if (typeof project !== 'undefined') {
+      if (typeof project !== 'undefined' &&
+          findProject(project.id) === -1) {
         state.projects.push({
           id: project.id,
           name: project.name,
           increments: [],
           currentStart: -1,
           active: false,
+        });
+
+        // Now that we have a new project, persist the new state.
+        persistState(state.projects);
+      } else {
+        return false;
+      }
+    },
+
+    addAndStartProject: function(state, project) {
+      if (typeof project !== 'undefined' &&
+          findProject(project.id) === -1) {
+        state.projects.push({
+          id: project.id,
+          name: project.name,
+          increments: [],
+          currentStart: CURRENT_TIME(),
+          active: true,
         });
 
         // Now that we have a new project, persist the new state.

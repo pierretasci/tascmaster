@@ -3,13 +3,16 @@
     input(
       type="text",
       placeholder="Enter new project name...",
-      v-model.trim="project_name").input-project
+      v-model.trim="project_name",
+      @keyup.enter="add").input-project
     .button-row
       button(
         type="button",
-        @click="add"
+        @click="add",
         @keyup.enter="add").btn Add
-      button(type="button").btn.primary Start
+      button(type="button",
+      @click="addAndStart",
+      @keyup.enter="addAndStart").btn.primary Start
 </template>
 
 <script>
@@ -54,6 +57,17 @@ module.exports = {
       };
       if (validateProject(newProject)) {
         this.$store.commit('addProject', newProject);
+        this.project_name = '';
+      }
+    },
+
+    addAndStart: function(e) {
+      let newProject = {
+        id: nameToId(this.project_name),
+        name: this.project_name,
+      };
+      if (validateProject(newProject)) {
+        this.$store.commit('addAndStartProject', newProject);
         this.project_name = '';
       }
     }
