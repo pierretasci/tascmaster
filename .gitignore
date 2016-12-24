@@ -6,3 +6,6 @@ build/*
 
 # Built binaries
 TascMaster-*
+
+# Editor specific
+.vscode

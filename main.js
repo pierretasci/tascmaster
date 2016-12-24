@@ -16,16 +16,18 @@ let win;
 
 function createWindow () {
   let display = electron.screen.getPrimaryDisplay();
+  // Since we can't dynamically resize this for windows, we need to set an good starting height.
+  const startingHeight = (process.platform === 'win32' ? 300 : 30);
+
 
   // Create the browser window.
   win = new BrowserWindow({
     alwaysOnTop: true,
-    height: 30,
+    height: startingHeight,
     width: DEFAULT_WINDOW_WIDTH,
     x: display.bounds.width - DEFAULT_WINDOW_WIDTH,
     y: 0,
   });
-  console.log(win.getBounds());
   win.show();
 
   // and load the index.html of the app.
@@ -67,7 +69,11 @@ app.on('activate', () => {
 });
 
 ipcMain.on('updateHeight', (e, nHeight) => {
-  console.log('Request to update height to ' + nHeight);
+  // Windows does not support this so just do nothing.
+  if (process.platform === 'win32') {
+    return;
+  }
+
   const rectangle = win.getBounds();
   rectangle.height = nHeight + TITLE_BAR_SIZE;
   win.setBounds(rectangle, true);
@@ -78,5 +84,8 @@ ipcMain.on('newState', (e, state) => {
 });
 
 ipcMain.on('loadInitialState', (e) => {
-  e.sender.send('receiveInitialState', readState());
+  let state = readState();
+  if(state) {
+    e.sender.send('receiveInitialState', state);
+  }
 });
