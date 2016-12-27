@@ -1,8 +1,7 @@
 <template lang="pug">
   .line.project
     .name {{project.name}}
-    .running(v-if="project.active") {{prettyRunningTime}}
-    .elapsed(v-if="shouldShowElapsedTime") {{elapsedTime}}
+    .running {{prettyTime}}
     .start(v-if="!project.active")
       button(type="button",@click="start").btn.primary Start
     .stop(v-if="project.active")
@@ -16,45 +15,9 @@ const SEC_PER_DAY = SEC_PER_HOUR * 24;
 
 module.exports = {
   computed: {
-    elapsedTime: function() {
-      let time_spent = 0;
-      this.project.increments.map((incr) => {
-        time_spent += incr.end - incr.start;
-      });
-      time_spent = Math.round(time_spent/1000);
-
-      // Pretty print the elpased time.
-      const components = [];
-      if (time_spent >= SEC_PER_DAY) {
-        const days = Math.floor(time_spent / SEC_PER_DAY);
-        components.push(days + ' day' + (days > 1 ? 's' : ''));
-        time_spent %= SEC_PER_DAY;
-      }
-
-      if (time_spent >= SEC_PER_HOUR) {
-        const hours = Math.floor(time_spent / SEC_PER_HOUR);
-        components.push(hours + ' hr' + (hours > 1 ? 's' : ''));
-        time_spent %= SEC_PER_HOUR;
-      }
-
-      if (time_spent >= SEC_PER_MINUTE) {
-        const minutes = Math.floor(time_spent / SEC_PER_MINUTE);
-        components.push(minutes + ' min' + (minutes > 1 ? 's' : ''));
-        time_spent %= SEC_PER_MINUTE;
-      }
-
-      if (time_spent > 0) {
-        components.push(time_spent + ' sec' + (time_spent > 1 ? 's' : ''));
-      }
-
-      // We only want to show the largest two orders of units.This will delete
-      // all elements at index 2 up to the end. If there aren't that many
-      // components, then it will simply do nothing.
-      components.splice(2);
-      return components.join(' ');
-    },
-    prettyRunningTime: function() {
-      let duration = this.runningTime;
+    prettyTime: function() {
+      let duration = this.displayTime;
+      console.log(duration);
       const components = [];
       let hours = Math.floor(duration / SEC_PER_HOUR);
       components.push(hours < 10 ? '0' + hours : hours);
@@ -69,10 +32,20 @@ module.exports = {
 
       return components.join(':');
     },
-    runningTime: function() {
-      let diff = Math.round((
-          this.$store.state.currentTime - this.project.currentStart)/1000);
-      return Math.max(0,diff);
+    displayTime: function() {
+      // If we are active show the running time, otherwise the elapsed time.
+      if (this.project.active) {
+        if (this.project.currentStart < 0) {
+          return 0;
+        }
+        const diff = Math.round((
+            this.$store.state.currentTime - this.project.currentStart)/1000);
+        return Math.max(0, diff);
+      } else {
+        return Math.round(this.project.increments.reduce((runningTotal, icr) => {
+          return runningTotal + (icr.end - icr.start);
+        }, 0)/1000);
+      }
     },
     shouldShowElapsedTime: function() {
       return !this.project.active && this.project.increments.length > 0;
