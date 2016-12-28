@@ -31,26 +31,22 @@ gulp.task('clean-js', () => {
 
 // == STYLES ==
 
-gulp.task('stylus-build', () => {
-  return gulp.src(STYLUS_DIR)
+gulp.task('css', ['clean-css'], () => {
+  gulp.src(CSS_DIR)
       .pipe(sourcemaps.init())
       .pipe(stylus({
         'include css': true,
       }))
-      .pipe(sourcemaps.write())
-      .pipe(gulp.dest(STYLUS_ROOTDIR + '/css/'));
-});
-
-gulp.task('css', ['clean-css', 'stylus-build'], () => {
-  gulp.src(CSS_DIR)
-      .pipe(sourcemaps.init())
       .pipe(postcss([ require('autoprefixer') ]))
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('./build'));
 });
 
-gulp.task('css-prod', ['clean-css', 'stylus-build'], () => {
-  gulp.src(CSS_DIR)
+gulp.task('css-prod', ['clean-css'], () => {
+  gulp.src(STYLUS_DIR)
+      .pipe(stylus({
+        'include css': true,
+      }))
       .pipe(postcss([
         require('autoprefixer'),
         sorting(),
