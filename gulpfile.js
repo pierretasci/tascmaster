@@ -1,6 +1,7 @@
 // == REQUIRES ==
 const gulp = require('gulp');
 
+const assets     = require('postcss-assets');
 const buffer     = require('vinyl-buffer');
 const cssnano    = require('cssnano');
 const postcss    = require('gulp-postcss');
@@ -13,7 +14,7 @@ const webpack_plugins = require('webpack');
 const webpack    = require('webpack-stream');
 
 // == DIRECTORIES ==
-const STYLUS_DIR = './styles/stylus/**/*.styl';
+const STYLUS_DIR = './styles/**/*.styl';
 const STYLUS_ROOTDIR = './styles';
 const CSS_DIR = './styles/css/**/*.css';
 const SCRIPT_DIR = './scripts/**/*';
@@ -37,7 +38,10 @@ gulp.task('css', ['clean-css'], () => {
       .pipe(stylus({
         'include css': true,
       }))
-      .pipe(postcss([ require('autoprefixer') ]))
+      .pipe(postcss([
+        require('autoprefixer'),
+        assets(),
+      ]))
       .pipe(sourcemaps.write())
       .pipe(gulp.dest('./build'));
 });
@@ -50,6 +54,7 @@ gulp.task('css-prod', ['clean-css'], () => {
       }))
       .pipe(postcss([
         require('autoprefixer'),
+        assets(),
         sorting(),
         cssnano(),
       ]))
