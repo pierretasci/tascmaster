@@ -38,6 +38,17 @@ function deepCopy(a) {
   return JSON.parse(JSON.stringify(a));
 }
 
+function createNewProject(id, name) {
+  return {
+    id: id,
+    name: name,
+    increments: [],
+    currentStart: -1,
+    active: false,
+    artificialTime: [],
+  };
+}
+
 let ticker;
 const startTicker = function() {
   ticker = window.setInterval(function() {
@@ -59,21 +70,14 @@ const store = new Vuex.Store({
     addArtificialTime: function(state, payload) {
       const index = findProject(state.projects, payload.id);
       if (index >= 0) {
-        state.projects[index].artificialTime += payload.diff;
+        state.projects[index].artificialTime.push(payload.diff);
         persistState(state.projects);
       }
     },
     addProject: function(state, project) {
       if (typeof project !== 'undefined' &&
           findProject(state.projects, project.id) === -1) {
-        state.projects.push({
-          id: project.id,
-          name: project.name,
-          increments: [],
-          currentStart: -1,
-          active: false,
-          artificialTime: 0,
-        });
+        state.projects.push(createNewProject(project.id, project.name));
 
         // Now that we have a new project, persist the new state.
         persistState(state.projects);
@@ -85,14 +89,10 @@ const store = new Vuex.Store({
     addAndStartProject: function(state, project) {
       if (typeof project !== 'undefined' &&
           findProject(state.projects, project.id) === -1) {
-        state.projects.push({
-          id: project.id,
-          name: project.name,
-          increments: [],
-          currentStart: CURRENT_TIME(),
-          artificialTime: 0,
-          active: true,
-        });
+        const newProject = createNewProject(project.id, project.name);
+        newProject.active = true;
+        newProject.currentStart = CURRENT_TIME();
+        state.projects.push(newProject);
 
         // Now that we have a new project, persist the new state.
         persistState(state.projects);

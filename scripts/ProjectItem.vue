@@ -62,9 +62,11 @@ module.exports = {
             this.$store.state.currentTime - this.project.currentStart)/1000);
         return Math.max(0, diff);
       } else {
-        return Math.round(this.project.increments.reduce((runningTotal, icr) => {
+        const artificialTime = this.project.artificialTime.reduce((a, b) => a + b, 0);
+        const elapsedTime =  Math.round(this.project.increments.reduce((runningTotal, icr) => {
           return runningTotal + (icr.end - icr.start);
-        }, 0)/1000) + this.project.artificialTime;
+        }, 0)/1000);
+        return elapsedTime + artificialTime;
       }
     },
     shouldShowElapsedTime: function() {
