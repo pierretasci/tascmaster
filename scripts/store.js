@@ -56,15 +56,27 @@ const store = new Vuex.Store({
     currentTime: CURRENT_TIME(),
   },
   mutations: {
+    addArtificialTime: function(state, payload) {
+      console.log('Request to add artifical time of ' + payload.diff +
+          ' seconds');
+      const index = findProject(state.projects, payload.id);
+      console.log(index);
+      if (index >= 0) {
+        state.projects[index].artificialTime += payload.diff;
+        console.log(state.projects);
+        persistState(state.projects);
+      }
+    },
     addProject: function(state, project) {
       if (typeof project !== 'undefined' &&
-          findProject(project.id) === -1) {
+          findProject(state.projects, project.id) === -1) {
         state.projects.push({
           id: project.id,
           name: project.name,
           increments: [],
           currentStart: -1,
           active: false,
+          artificialTime: 0,
         });
 
         // Now that we have a new project, persist the new state.
@@ -76,7 +88,7 @@ const store = new Vuex.Store({
 
     addAndStartProject: function(state, project) {
       if (typeof project !== 'undefined' &&
-          findProject(project.id) === -1) {
+          findProject(state.projects, project.id) === -1) {
         state.projects.push({
           id: project.id,
           name: project.name,

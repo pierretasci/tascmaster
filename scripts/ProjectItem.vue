@@ -1,11 +1,23 @@
 <template lang="pug">
   .line.project
     .name {{project.name}}
-    .running {{prettyTime}}
-    .start(v-if="!project.active")
-      button(type="button",@click="start").btn.primary Start
-    .stop(v-if="project.active")
-      button(type="button",@click="stop").btn.primary Stop
+    .editable(v-if="editing")
+      input(type="text",v-model="hours").inline
+      .
+        :
+      input(type="text",v-model="minutes").inline
+      .
+        :
+      input(type="text",v-model="seconds").inline
+    .running(v-if="!editing",v-on:click="editTime") {{prettyTime}}
+    template(v-if="!editing")
+      .start(v-if="!project.active")
+        button(type="button",@click="start").btn.primary Start
+      .stop(v-if="project.active")
+        button(type="button",@click="stop").btn.primary Stop
+    template(v-if="editing")
+      button(type="button",@click="save").btn.image.save
+      button(type="button",@click="cancel").btn.image.cancel
 </template>
 
 <script>
@@ -14,6 +26,14 @@ const SEC_PER_HOUR = SEC_PER_MINUTE * 60;
 const SEC_PER_DAY = SEC_PER_HOUR * 24;
 
 module.exports = {
+  data: function() {
+    return {
+      editing: false,
+      hours: '00',
+      minutes: '00',
+      seconds: '00',
+    };
+  },
   computed: {
     prettyTime: function() {
       let duration = this.displayTime;
@@ -21,14 +41,17 @@ module.exports = {
       const components = [];
       let hours = Math.floor(duration / SEC_PER_HOUR);
       components.push(hours < 10 ? '0' + hours : hours);
+      this.hours = hours < 10 ? '0' + hours : hours;
       duration %= SEC_PER_HOUR;
 
       let minutes = Math.floor(duration / SEC_PER_MINUTE);
       components.push(minutes < 10 ? '0' + minutes : minutes);
+      this.minutes = minutes < 10 ? '0' + minutes : minutes
       duration %= SEC_PER_MINUTE;
 
       let sec = Math.round(duration);
       components.push(sec < 10 ? '0' + sec : sec);
+      this.seconds = sec < 10 ? '0' + sec : sec;
 
       return components.join(':');
     },
@@ -44,7 +67,7 @@ module.exports = {
       } else {
         return Math.round(this.project.increments.reduce((runningTotal, icr) => {
           return runningTotal + (icr.end - icr.start);
-        }, 0)/1000);
+        }, 0)/1000) + this.project.artificialTime;
       }
     },
     shouldShowElapsedTime: function() {
@@ -52,12 +75,40 @@ module.exports = {
     }
   },
   methods: {
+    cancel: function() {
+      console.log('CANCEL');
+    },
+    editTime: function() {
+      if (!this.project.active) {
+        this.editing = true;
+      }
+    },
+    save: function() {
+      // Validate that all the inputs are numbers.
+      const hours = parseInt(this.hours);
+      const minutes = parseInt(this.minutes);
+      const seconds = parseInt(this.seconds);
+
+      if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+        alert("Please only enter numbers.");
+        return;
+      }
+
+      this.editing = false;
+      // Add an artificial increment to bring the elapsed time up to a correct
+      // amount.
+      console.log(this.project);
+      this.$store.commit('addArtificialTime', {
+        id: this.project.id,
+        diff: hours * 3600 + minutes * 60 + seconds - this.displayTime,
+      });
+    },
     start: function() {
       this.$store.commit('startTimer', this.project.id);
     },
     stop: function() {
       this.$store.commit('stopTimer', this.project.id);
-    }
+    },
   },
   props: ['project']
 };

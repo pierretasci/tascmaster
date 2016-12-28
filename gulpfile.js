@@ -32,7 +32,7 @@ gulp.task('clean-js', () => {
 // == STYLES ==
 
 gulp.task('css', ['clean-css'], () => {
-  gulp.src(CSS_DIR)
+  gulp.src(STYLUS_DIR)
       .pipe(sourcemaps.init())
       .pipe(stylus({
         'include css': true,
@@ -46,6 +46,7 @@ gulp.task('css-prod', ['clean-css'], () => {
   gulp.src(STYLUS_DIR)
       .pipe(stylus({
         'include css': true,
+        'compress': true,
       }))
       .pipe(postcss([
         require('autoprefixer'),
