@@ -94,6 +94,7 @@ const store = new Vuex.Store({
           name: project.name,
           increments: [],
           currentStart: CURRENT_TIME(),
+          artificialTime: 0,
           active: true,
         });
 
