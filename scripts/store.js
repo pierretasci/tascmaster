@@ -57,13 +57,9 @@ const store = new Vuex.Store({
   },
   mutations: {
     addArtificialTime: function(state, payload) {
-      console.log('Request to add artifical time of ' + payload.diff +
-          ' seconds');
       const index = findProject(state.projects, payload.id);
-      console.log(index);
       if (index >= 0) {
         state.projects[index].artificialTime += payload.diff;
-        console.log(state.projects);
         persistState(state.projects);
       }
     },

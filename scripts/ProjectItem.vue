@@ -41,17 +41,14 @@ module.exports = {
       const components = [];
       let hours = Math.floor(duration / SEC_PER_HOUR);
       components.push(hours < 10 ? '0' + hours : hours);
-      this.hours = hours < 10 ? '0' + hours : hours;
       duration %= SEC_PER_HOUR;
 
       let minutes = Math.floor(duration / SEC_PER_MINUTE);
       components.push(minutes < 10 ? '0' + minutes : minutes);
-      this.minutes = minutes < 10 ? '0' + minutes : minutes
       duration %= SEC_PER_MINUTE;
 
       let sec = Math.round(duration);
       components.push(sec < 10 ? '0' + sec : sec);
-      this.seconds = sec < 10 ? '0' + sec : sec;
 
       return components.join(':');
     },
@@ -76,11 +73,17 @@ module.exports = {
   },
   methods: {
     cancel: function() {
-      console.log('CANCEL');
+      this.editing = false;
     },
     editTime: function() {
       if (!this.project.active) {
         this.editing = true;
+
+        // Setup the individual units to show.
+        const components = this.prettyTime.split(':');
+        this.hours = components[0];
+        this.minutes = components[1];
+        this.seconds = components[2];
       }
     },
     save: function() {
