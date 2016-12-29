@@ -37,7 +37,6 @@ module.exports = {
   computed: {
     prettyTime: function() {
       let duration = this.displayTime;
-      console.log(duration);
       const components = [];
       let hours = Math.floor(duration / SEC_PER_HOUR);
       components.push(hours < 10 ? '0' + hours : hours);
@@ -53,21 +52,24 @@ module.exports = {
       return components.join(':');
     },
     displayTime: function() {
-      // If we are active show the running time, otherwise the elapsed time.
-      if (this.project.active) {
-        if (this.project.currentStart < 0) {
-          return 0;
-        }
-        const diff = Math.round((
-            this.$store.state.currentTime - this.project.currentStart)/1000);
-        return Math.max(0, diff);
-      } else {
-        const artificialTime = this.project.artificialTime.reduce((a, b) => a + b, 0);
-        const elapsedTime =  Math.round(this.project.increments.reduce((runningTotal, icr) => {
-          return runningTotal + (icr.end - icr.start);
-        }, 0)/1000);
-        return elapsedTime + artificialTime;
+      // If we are not active, show the elapsed time. Otherwise, add in the
+      // running time.
+      const artificialTime = this.project.artificialTime.reduce((a, b) => a + b, 0);
+      const elapsedTime =  Math.round(this.project.increments.reduce((runningTotal, icr) => {
+        return runningTotal + (icr.end - icr.start);
+      }, 0)/1000);
+      const totalElapsed = elapsedTime + artificialTime;
+
+      if (!this.project.active) {
+        return totalElapsed;
       }
+
+      if (this.project.currentStart < 0) {
+        return 0;
+      }
+      const diff = Math.round((
+          this.$store.state.currentTime - this.project.currentStart)/1000);
+      return totalElapsed + Math.max(0, diff);
     },
     shouldShowElapsedTime: function() {
       return !this.project.active && this.project.increments.length > 0;
@@ -102,7 +104,6 @@ module.exports = {
       this.editing = false;
       // Add an artificial increment to bring the elapsed time up to a correct
       // amount.
-      console.log(this.project);
       this.$store.commit('addArtificialTime', {
         id: this.project.id,
         diff: hours * 3600 + minutes * 60 + seconds - this.displayTime,
