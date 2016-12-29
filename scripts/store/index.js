@@ -1,54 +1,12 @@
 const Vue = require('Vue');
 const Vuex = require('vuex');
 const { ipcRenderer } = require('electron');
-const CURRENT_TIME = require('./time');
+const CURRENT_TIME = require('../utils/time');
+const Helpers = require('./helpers');
+const Logger = require('../utils/logger');
+const Validator = require('validator');
 
 // == HELPER METHODS ==
-const findProject = function(arr, id) {
-  if (!id) {
-    return  -1;
-  }
-
-  for(let i = 0; i < arr.length; ++i) {
-    if (arr[i].id === id) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-// Returns a better view of the projects for use in persisting them to disk.
-function cleanProjects(projects) {
-  return projects.map(function(p) {
-    if (p.active) {
-      p.increments.push({
-        start: p.currentStart,
-        end: CURRENT_TIME()
-      });
-    }
-    // When we persist the project, we always set it's active status time as
-    // false.
-    p.active = false
-    p.currentStart = -1;
-    return p;
-  });
-}
-
-function deepCopy(a) {
-  return JSON.parse(JSON.stringify(a));
-}
-
-function createNewProject(id, name) {
-  return {
-    id: id,
-    name: name,
-    increments: [],
-    currentStart: -1,
-    active: false,
-    artificialTime: [],
-  };
-}
-
 let ticker;
 const startTicker = function() {
   ticker = window.setInterval(function() {
@@ -67,29 +25,51 @@ const store = new Vuex.Store({
     currentTime: CURRENT_TIME(),
   },
   mutations: {
+    /**
+     * Takes in payload the project id to add time to and a number of SECONDS to
+     * add to the artificial time block of the project. Can be negative but must
+     * be a number.
+     */
     addArtificialTime: function(state, payload) {
-      const index = findProject(state.projects, payload.id);
-      if (index >= 0) {
-        state.projects[index].artificialTime.push(payload.diff);
-        persistState(state.projects);
+      if (typeof payload !=='object') {
+        return Logger.error('addArtificialTime | No payload provided.');
       }
+
+      if (typeof payload.id !== 'string' || Validator.isEmpty(payload.id)) {
+        return Logger.error('addArtificialTime | No id provided.');
+      }
+
+      if (typeof payload.diff !== 'number') {
+        return Logger.error('addArtificialTime | No diff provided.');
+      }
+
+      const index = Helpers.findProject(state.projects, payload.id);
+
+      if (index < 0) {
+        Logger.warn('addArtificialTime | Could not find project for id ' 
+          + payload.id);
+      }
+
+      state.projects[index].artificialTime.push(payload.diff);
+      persistState(state.projects);
     },
     addProject: function(state, project) {
       if (typeof project !== 'undefined' &&
-          findProject(state.projects, project.id) === -1) {
-        state.projects.push(createNewProject(project.id, project.name));
+          Helpers.findProject(state.projects, project.id) === -1) {
+        state.projects.push(Helpers.createNewProject(project.id, project.name));
 
         // Now that we have a new project, persist the new state.
         persistState(state.projects);
       } else {
+        Logger.warn('Could not create project');
         return false;
       }
     },
 
     addAndStartProject: function(state, project) {
       if (typeof project !== 'undefined' &&
-          findProject(state.projects, project.id) === -1) {
-        const newProject = createNewProject(project.id, project.name);
+          Helpers.findProject(state.projects, project.id) === -1) {
+        const newProject = Helpers.createNewProject(project.id, project.name);
         newProject.active = true;
         newProject.currentStart = CURRENT_TIME();
         state.projects.push(newProject);
@@ -115,7 +95,7 @@ const store = new Vuex.Store({
     },
 
     startTimer: function(state, project_id) {
-      const index = findProject(state.projects, project_id)
+      const index = Helpers.findProject(state.projects, project_id)
       if (index < 0) {
         return false;
       }
@@ -130,7 +110,7 @@ const store = new Vuex.Store({
     },
 
     stopTimer: function(state, project_id) {
-      const index = findProject(state.projects, project_id)
+      const index = Helpers.findProject(state.projects, project_id)
       if (index < 0) {
         return false;
       }
@@ -164,7 +144,8 @@ module.exports = store;
 // == RUNNABLE ==
 // Start an interval to periodically persist the state.
 const persistState = function(projects) {
-  ipcRenderer.send('newState', cleanProjects(deepCopy(projects)));
+  ipcRenderer.send('newState', Helpers.cleanProjects(
+    Helpers.deepCopy(projects)));
 }
 let persistStateTicker = window.setInterval(() => {
     persistState(store.state.projects);

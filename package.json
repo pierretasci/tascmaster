@@ -12,7 +12,9 @@
   "productName": "TascMaster",
   "dependencies": {
     "electron": "^1.4.12",
+    "electron-log": "^1.3.0",
     "fs": "0.0.1-security",
+    "validator": "^6.2.0",
     "vue": "^2.1.4",
     "vuex": "^2.0.0"
   },
@@ -31,6 +33,7 @@
     "gulp-rm": "^1.0.2",
     "gulp-sourcemaps": "^1.9.1",
     "gulp-stylus": "^2.6.0",
+    "mocha": "^3.2.0",
     "postcss-assets": "^4.1.0",
     "postcss-sorting": "^1.7.0",
     "pug": "^2.0.0-beta6",

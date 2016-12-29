@@ -16,27 +16,28 @@
 </template>
 
 <script>
+const Validator = require('validator');
+
 const nameToId = function(name) {
   if (typeof name !== 'string') {
     return false;
   }
-
   return name.toLowerCase().replace(/[^a-zA-Z0-9]/gi, '-');
 }
 
 const validateProject = function(project) {
-  if (!project) {
-    console.log('No project provided.');
+  if (typeof project !== 'object') {
+    alert('No project provided.');
     return false;
   }
 
-  if (!project.id) {
-    console.log('Project did not contain an id.');
+  if (typeof project.id !== 'string' && Validator.isEmpty(project.id)) {
+    alert('Project did not contain an id.');
     return false;
   }
 
-  if (!project.name) {
-    console.log('Project did not contain a name.');
+  if (typeof project.name !== 'string' && Validator.isEmpty(project.id)) {
+    alert('Project did not contain a name.');
     return false;
   }
 
