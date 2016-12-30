@@ -12,6 +12,7 @@
         @keyup.enter="add").btn.image.add
       button(type="button",
       @click="addAndStart",
+      @click.meta="addAndStartBackground",
       @keyup.enter="addAndStart").btn.image.play
 </template>
 
@@ -63,15 +64,31 @@ module.exports = {
     },
 
     addAndStart: function(e) {
+      if (!e.metaKey) {
+        let newProject = {
+          id: nameToId(this.project_name),
+          name: this.project_name,
+        };
+        if (validateProject(newProject)) {
+          this.$store.commit('addAndStartProject', { project: newProject });
+          this.project_name = '';
+        }
+      }
+    },
+
+    addAndStartBackground: function(e) {
       let newProject = {
         id: nameToId(this.project_name),
         name: this.project_name,
       };
       if (validateProject(newProject)) {
-        this.$store.commit('addAndStartProject', newProject);
+        this.$store.commit('addAndStartProject', {
+          project: newProject,
+          overrideStart: false
+        });
         this.project_name = '';
       }
-    }
+    },
   }
 };
 </script>

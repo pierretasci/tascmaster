@@ -46,7 +46,7 @@ const store = new Vuex.Store({
       const index = Helpers.findProject(state.projects, payload.id);
 
       if (index < 0) {
-        Logger.warn('addArtificialTime | Could not find project for id ' 
+        Logger.warn('addArtificialTime | Could not find project for id '
           + payload.id);
       }
 
@@ -66,9 +66,18 @@ const store = new Vuex.Store({
       }
     },
 
-    addAndStartProject: function(state, project) {
+    addAndStartProject: function(state, payload) {
+      const data = Object.assign({},
+        { project: {}, overrideStart: true }, payload);
+      const project = data.project;
+      const overrideStart = data.overrideStart;
+
       if (typeof project !== 'undefined' &&
           Helpers.findProject(state.projects, project.id) === -1) {
+        if (overrideStart) {
+          state.projects = Helpers.deactivateAll(state.projects);
+        }
+
         const newProject = Helpers.createNewProject(project.id, project.name);
         newProject.active = true;
         newProject.currentStart = CURRENT_TIME();
@@ -94,10 +103,17 @@ const store = new Vuex.Store({
       state.projects = newProjects;
     },
 
-    startTimer: function(state, project_id) {
-      const index = Helpers.findProject(state.projects, project_id)
+    startTimer: function(state, payload) {
+      const data = Object.assign({}, { id: '', overrideStart: true }, payload);
+      Logger.info('Start Timer: ' + JSON.stringify(data));
+
+      const index = Helpers.findProject(state.projects, data.id)
       if (index < 0) {
         return false;
+      }
+
+      if (data.overrideStart) {
+        state.projects = Helpers.deactivateAll(state.projects);
       }
 
       state.projects[index].active = true;
@@ -109,8 +125,9 @@ const store = new Vuex.Store({
       }
     },
 
-    stopTimer: function(state, project_id) {
-      const index = Helpers.findProject(state.projects, project_id)
+    stopTimer: function(state, payload) {
+      const data = Object.assign({}, { id: '' }, payload);
+      const index = Helpers.findProject(state.projects, data.id)
       if (index < 0) {
         return false;
       }

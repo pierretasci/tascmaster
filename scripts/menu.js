@@ -12,6 +12,7 @@ menu.append(new MenuItem({
 
 window.addEventListener('contextmenu', (e) => {
   e.preventDefault();
+
   menu.popup(remote.getCurrentWindow());
 }, false);
 

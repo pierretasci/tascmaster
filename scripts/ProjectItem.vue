@@ -12,7 +12,10 @@
     .running(v-if="!editing",v-on:click="editTime") {{prettyTime}}
     template(v-if="!editing")
       .start(v-if="!project.active")
-        button(type="button",@click="start").btn.image.play
+        button(
+          type="button",
+          @click.meta="backgroundStart",
+          @click="start").btn.image.play
       .stop(v-if="project.active")
         button(type="button",@click="stop").btn.image.pause
     template(v-if="editing")
@@ -84,6 +87,12 @@ module.exports = {
     },
   },
   methods: {
+    backgroundStart: function() {
+      this.$store.commit('startTimer', {
+        id: this.project.id,
+        overrideStart: false
+      });
+    },
     cancel: function() {
       this.editing = false;
     },
@@ -120,11 +129,13 @@ module.exports = {
           - this.displayTime,
       });
     },
-    start: function() {
-      this.$store.commit('startTimer', this.project.id);
+    start: function(e) {
+      if (!e.metaKey) {
+        this.$store.commit('startTimer', { id: this.project.id });
+      }
     },
     stop: function() {
-      this.$store.commit('stopTimer', this.project.id);
+      this.$store.commit('stopTimer', { id: this.project.id });
     },
   },
   props: ['project']
