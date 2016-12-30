@@ -14,7 +14,13 @@
       .start(v-if="!project.active")
         button(
           type="button",
+          v-if="platform === 'darwin'",
           @click.meta="backgroundStart",
+          @click="start").btn.image.play
+        button(
+          type="button",
+          v-if="platform !== 'darwin'",
+          @click.ctrl="backgroundStart",
           @click="start").btn.image.play
       .stop(v-if="project.active")
         button(type="button",@click="stop").btn.image.pause
@@ -35,6 +41,7 @@ module.exports = {
       hours: '00',
       minutes: '00',
       seconds: '00',
+      platform: process.platform,
     };
   },
   computed: {
@@ -130,7 +137,7 @@ module.exports = {
       });
     },
     start: function(e) {
-      if (!e.metaKey) {
+      if (!e.metaKey && !e.ctrlKey) {
         this.$store.commit('startTimer', { id: this.project.id });
       }
     },
