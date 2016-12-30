@@ -23,7 +23,9 @@ function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
     alwaysOnTop: true,
+    frame: false,
     height: startingHeight,
+    transparent: true,
     width: DEFAULT_WINDOW_WIDTH,
     x: display.bounds.width - DEFAULT_WINDOW_WIDTH,
     y: 0,
@@ -43,6 +45,15 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null;
+  });
+
+  // When the window is no longer focused, tell the page to become transparent.
+  win.on('blur', () => {
+    win.webContents.send('make-transparent');
+  });
+
+  win.on('focus', () => {
+    win.webContents.send('make-opaque');
   });
 }
 

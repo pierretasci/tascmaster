@@ -1,5 +1,5 @@
 <template lang="pug">
-  .line.project
+  .line.project.add
     input(
       type="text",
       placeholder="Enter new project name...",
@@ -9,17 +9,17 @@
       button(
         type="button",
         @click="add",
-        @keyup.enter="add").btn Add
+        @keyup.enter="add").btn.image.add
       button(type="button",
       @click="addAndStart",
-      @keyup.enter="addAndStart").btn.primary Start
+      @keyup.enter="addAndStart").btn.image.play
 </template>
 
 <script>
 const Validator = require('validator');
 
 const nameToId = function(name) {
-  if (typeof name !== 'string') {
+  if (typeof name !== 'string' || Validator.isEmpty(name)) {
     return false;
   }
   return name.toLowerCase().replace(/[^a-zA-Z0-9]/gi, '-');

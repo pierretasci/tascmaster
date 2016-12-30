@@ -1,14 +1,22 @@
+@require 'colors'
+
 .project
   font-size: 1rem
   display: flex
   align-items: center
 
-  .name
-    flex: 1
+  &:nth-child(odd)
+    background-color: project-odd-bg
 
-  .running, .elapsed
-    margin-right: 0.5rem
+  &:nth-child(even)
+    background-color: project-even-bg
 
   .editable
     display: flex
     align-items: center
+
+  .elapsed, .running
+    margin-right: 0.5rem
+
+  .name
+    flex: 1

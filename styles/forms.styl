@@ -1,5 +1,8 @@
 @import 'colors'
 
+input
+  background: transparent
+
 .input-project
   outline: 0
   border: 0
@@ -32,22 +35,25 @@
   &:active
     background-color: tm-dark-smoke
 
-  &.primary
-    background-color: tm-blue
-    color: white
-
-    &:active
-      background-color: tm-dark-blue
-
   &.image
     width: 1.4rem
     height: 1.4rem
+    background-color: transparent
     background-repeat: no-repeat
     background-position: center
-    background-size: 1rem 1rem
+    background-size: cover
 
     &.save
       background-image: inline('../images/save.svg')
 
     &.cancel
       background-image: inline('../images/cancel.svg')
+
+    &.play
+      background-image: inline('../images/play.svg')
+
+    &.pause
+      background-image: inline('../images/pause.svg')
+
+    &.add
+      background-image: inline('../images/add.svg')

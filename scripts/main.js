@@ -9,16 +9,19 @@ const ProjectItem = require('./ProjectItem.vue');
 const store = require('./store');
 
 // Includes the size of the title bar and the padding around the body.
-const BASE_PADDING_PIXELS = 16;
-const PIXELS_PER_PROJECT = 31;
-const PIXELS_BETWEEN_PROJECTS = 8;
+const PIXELS_PER_PROJECT = 37;
 
 function getWindowHeight(numProjects) {
-  let nHeight = BASE_PADDING_PIXELS;
-  nHeight += (numProjects + 1) * PIXELS_PER_PROJECT;
-  nHeight += numProjects * PIXELS_BETWEEN_PROJECTS;
-  return nHeight;
+  return (numProjects + 1) * PIXELS_PER_PROJECT;
 }
+
+ipcRenderer.on('make-transparent', () => {
+  // TODO: Show only running apps.
+});
+
+ipcRenderer.on('make-opaque', () => {
+  // TODO: Show everything.
+});
 
 var app = new Vue({
   el: '#app',

@@ -134,7 +134,8 @@ gulp.task('js-prod', ['clean-js'], function() {
 // == MISC ==
 
 gulp.task('stylus-watch', () => {
-  return gulp.watch(STYLUS_DIR, ['css']);
+  // Because we inline our images, we need to watch the images folder too.
+  return gulp.watch([STYLUS_DIR, './images/**/*'], ['css']);
 });
 
 gulp.task('js-watch', () => {

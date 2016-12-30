@@ -12,9 +12,9 @@
     .running(v-if="!editing",v-on:click="editTime") {{prettyTime}}
     template(v-if="!editing")
       .start(v-if="!project.active")
-        button(type="button",@click="start").btn.primary Start
+        button(type="button",@click="start").btn.image.play
       .stop(v-if="project.active")
-        button(type="button",@click="stop").btn.primary Stop
+        button(type="button",@click="stop").btn.image.pause
     template(v-if="editing")
       button(type="button",@click="save").btn.image.save
       button(type="button",@click="cancel").btn.image.cancel
@@ -59,12 +59,12 @@ module.exports = {
     /**
      * Returns the correct number of seconds to display for this project. If the
      * project is not active, simply adds up all of the saved increments as well
-     * as all of the overrides. 
-     * 
+     * as all of the overrides.
+     *
      * It the project is active, then throws in the current running time.
      */
     displayTime: function() {
-      // If we are not active, show the elapsed time. Otherwise, add in the 
+      // If we are not active, show the elapsed time. Otherwise, add in the
       // running time.
       const artificialTime = this.project.artificialTime.reduce((a, b) => a + b, 0);
       const elapsedTime = Math.round(
@@ -114,9 +114,9 @@ module.exports = {
       // amount.
       this.$store.commit('addArtificialTime', {
         id: this.project.id,
-        diff: hours * SEC_PER_HOUR 
-          + minutes * SEC_PER_MINUTE 
-          + seconds 
+        diff: hours * SEC_PER_HOUR
+          + minutes * SEC_PER_MINUTE
+          + seconds
           - this.displayTime,
       });
     },
