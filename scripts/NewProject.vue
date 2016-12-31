@@ -10,10 +10,18 @@
         type="button",
         @click="add",
         @keyup.enter="add").btn.image.add
-      button(type="button",
-      @click="addAndStart",
-      @click.meta="addAndStartBackground",
-      @keyup.enter="addAndStart").btn.image.play
+      button(
+        type="button",
+        v-if="platform === darwin",
+        @click="addAndStart",
+        @click.meta="addAndStartBackground",
+        @keyup.enter="addAndStart").btn.image.play
+      button(
+        type="button",
+        v-if="platform !== darwin",
+        @click="addAndStart",
+        @click.ctrl="addAndStartBackground",
+        @keyup.enter="addAndStart").btn.image.play
 </template>
 
 <script>
@@ -49,6 +57,7 @@ module.exports = {
   data: function() {
     return {
       project_name: '',
+      platform: process.platform,
     };
   },
   methods: {
@@ -64,7 +73,7 @@ module.exports = {
     },
 
     addAndStart: function(e) {
-      if (!e.metaKey) {
+      if (!e.metaKey && !e.ctrlKey) {
         let newProject = {
           id: nameToId(this.project_name),
           name: this.project_name,
