@@ -12,13 +12,13 @@
         @keyup.enter="add").btn.image.add
       button(
         type="button",
-        v-if="platform === darwin",
+        v-if="platform === 'darwin'",
         @click="addAndStart",
         @click.meta="addAndStartBackground",
         @keyup.enter="addAndStart").btn.image.play
       button(
         type="button",
-        v-if="platform !== darwin",
+        v-if="platform !== 'darwin'",
         @click="addAndStart",
         @click.ctrl="addAndStartBackground",
         @keyup.enter="addAndStart").btn.image.play
@@ -57,7 +57,6 @@ module.exports = {
   data: function() {
     return {
       project_name: '',
-      platform: process.platform,
     };
   },
   methods: {
@@ -98,6 +97,7 @@ module.exports = {
         this.project_name = '';
       }
     },
-  }
+  },
+  props: ['platform']
 };
 </script>

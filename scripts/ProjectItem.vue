@@ -41,7 +41,6 @@ module.exports = {
       hours: '00',
       minutes: '00',
       seconds: '00',
-      platform: process.platform,
     };
   },
   computed: {
@@ -145,6 +144,6 @@ module.exports = {
       this.$store.commit('stopTimer', { id: this.project.id });
     },
   },
-  props: ['project']
+  props: ['project', 'platform']
 };
 </script>

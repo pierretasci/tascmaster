@@ -26,6 +26,9 @@ var app = new Vue({
       return store.state.projects;
     },
   },
+  data: {
+    platform: process.platform,
+  },
   store,
   watch: {
     projects: function(newProjects) {

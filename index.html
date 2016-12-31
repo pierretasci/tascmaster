@@ -10,7 +10,8 @@
     <div class="container" id="app">
       <project-item
         v-for="project in projects"
-        v-bind:project="project">
+        v-bind:project="project"
+        v-bind:platform="platform">
       </project-item>
       <new-project />
     </div>

@@ -1,25 +1,9 @@
+const { ipcRenderer } = require('electron');
 const CURRENT_TIME = require('../utils/time');
 const Logger = require('../utils/logger');
 const Validator = require('validator');
 
 module.exports = {
-  // Returns a better view of the projects for use in persisting them to disk.
-  cleanProjects: function(projects) {
-    return projects.map(function(p) {
-      if (p.active) {
-        p.increments.push({
-          start: p.currentStart,
-          end: CURRENT_TIME()
-        });
-      }
-      // When we persist the project, we always set it's active status time as
-      // false.
-      p.active = false
-      p.currentStart = -1;
-      return p;
-    });
-  },
-
   createNewProject: function(id, name) {
     return {
       id: id,
@@ -45,7 +29,10 @@ module.exports = {
           end: stopTime,
         });
       }
+      // When we persist the project, we always set it's active status time as
+      // false.
       p.active = false;
+      p.currentStart = -1;
       return p;
     });
   },
@@ -55,7 +42,7 @@ module.exports = {
   },
 
   findProject: function(arr, id) {
-    if (typeof id !== 'string' && Validator.isEmpty(id)) {
+    if (typeof id !== 'string' || Validator.isEmpty(id)) {
       Logger.warn('Received a non-existant id value! Id was: ' + id);
       return  -1;
     }
@@ -68,4 +55,9 @@ module.exports = {
     Logger.info('Could not find id ' + id + '. Returning default.');
     return -1;
   },
+
+  // Start an interval to periodically persist the state.
+  persistState: function(projects) {
+    ipcRenderer.send('newState', this.deactivateAll(this.deepCopy(projects)));
+  }
 };
