@@ -95,8 +95,9 @@ ipcMain.on('newState', (e, state) => {
 });
 
 ipcMain.on('loadInitialState', (e) => {
-  let state = readState();
-  if(state) {
-    e.sender.send('receiveInitialState', state);
-  }
+  readState((err, data) => {
+    if (!err) {
+      e.sender.send('receiveInitialState', JSON.parse(data));
+    }
+  });
 });

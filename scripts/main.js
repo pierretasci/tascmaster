@@ -15,14 +15,6 @@ function getWindowHeight(numProjects) {
   return (numProjects + 1) * PIXELS_PER_PROJECT;
 }
 
-ipcRenderer.on('make-transparent', () => {
-  // TODO: Show only running apps.
-});
-
-ipcRenderer.on('make-opaque', () => {
-  // TODO: Show everything.
-});
-
 var app = new Vue({
   el: '#app',
   components: {
