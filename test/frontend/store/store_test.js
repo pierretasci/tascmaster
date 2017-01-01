@@ -184,4 +184,79 @@ describe('StoreTest', function() {
       assert.isTrue(persist.called);
     });
   });
+
+  describe('#startTimer', function() {
+    it('invalid payload', function() {
+      const state = { projects: [ Helpers.createNewProject('test', 'Test') ]};
+      assert.isFalse(Mutations.startTimer(state));
+      assert.isFalse(persist.called);
+    });
+
+    it('invalid id', function() {
+      const state = { projects: [ Helpers.createNewProject('test', 'Test') ]};
+      assert.isFalse(Mutations.startTimer(state, {}));
+      assert.isFalse(persist.called);
+    });
+
+    it('id does not exist', function() {
+      const state = { projects: [ Helpers.createNewProject('test', 'Test') ]};
+      assert.isFalse(Mutations.startTimer(state,
+          { project: { id: 'test2' }}));
+      assert.isFalse(persist.called);
+    });
+
+    it('starts project and disables all other projects', function() {
+      const state = { projects: [
+        Helpers.createNewProject('test', 'Test'),
+        Helpers.createNewProject('test2', 'Test 2')
+      ]};
+      state.projects[0].active = true;
+      const start1 = new Date().getTime();
+      state.projects[0].currentStart = start1;
+
+      clock.tick(1000 * 60);
+
+      Mutations.startTimer(state, { id: 'test2' });
+
+      const expected = { projects: [
+        Helpers.createNewProject('test', 'Test'),
+        Helpers.createNewProject('test2', 'Test 2'),
+      ]};
+      expected.projects[0].increments.push({
+        start: start1,
+        end: new Date().getTime(),
+      });
+      expected.projects[1].active = true;
+      expected.projects[1].currentStart = new Date().getTime();
+
+      assert.deepEqual(state, expected);
+      assert.isTrue(persist.called);
+    });
+
+    it('adds project and keeps all other projects going', function() {
+      const state = { projects: [
+        Helpers.createNewProject('test', 'Test'),
+        Helpers.createNewProject('test2', 'Test 2'),
+      ]};
+      state.projects[0].active = true;
+      const start1 = new Date().getTime();
+      state.projects[0].currentStart = start1;
+
+      clock.tick(1000 * 60);
+
+      Mutations.startTimer(state, { id: 'test2', overrideStart: false});
+
+      const expected = { projects: [
+        Helpers.createNewProject('test', 'Test'),
+        Helpers.createNewProject('test2', 'Test 2'),
+      ]};
+      expected.projects[0].active = true;
+      expected.projects[0].currentStart = start1;
+      expected.projects[1].active = true;
+      expected.projects[1].currentStart = new Date().getTime();
+
+      assert.deepEqual(expected, state);
+      assert.isTrue(persist.called);
+    });
+  });
 });

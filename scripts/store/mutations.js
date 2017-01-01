@@ -87,6 +87,7 @@ module.exports = {
 
     const index = Helpers.findProject(state.projects, data.id)
     if (index < 0) {
+      Logger.error('startTimer | Could not find requested project to start.');
       return false;
     }
 
@@ -108,15 +109,7 @@ module.exports = {
       return false;
     }
 
-    const stopTime = CURRENT_TIME();
-
-    state.projects[index].active = false;
-    // Save this interval to the increments.
-    state.projects[index].increments.push({
-      start: state.projects[index].currentStart,
-      end: stopTime,
-    });
-
+    state.projects = Helpers.deactivateAll(state.projects);
     Helpers.persistState(state.projects);
   },
 
