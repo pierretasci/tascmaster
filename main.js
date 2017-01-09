@@ -6,6 +6,8 @@ const path = require('path');
 const url = require('url');
 const fs = require('fs');
 const { readState, writeState } = require('./lib/persistence');
+const { exec } = require('child_process');
+require('./lib/export');
 
 const DEFAULT_WINDOW_WIDTH = 400;
 const TITLE_BAR_SIZE = 22;
@@ -45,15 +47,6 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null;
-  });
-
-  // When the window is no longer focused, tell the page to become transparent.
-  win.on('blur', () => {
-    win.webContents.send('make-transparent');
-  });
-
-  win.on('focus', () => {
-    win.webContents.send('make-opaque');
   });
 }
 

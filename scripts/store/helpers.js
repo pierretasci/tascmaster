@@ -3,6 +3,10 @@ const CURRENT_TIME = require('../utils/time');
 const Logger = require('../utils/logger');
 const Validator = require('validator');
 
+const MS_PER_S = 1000;
+const MS_PER_M = MS_PER_S * 60;
+const MS_PER_H = MS_PER_M * 60;
+
 module.exports = {
   createNewProject: function(id, name) {
     return {
@@ -54,6 +58,30 @@ module.exports = {
     }
     Logger.info('Could not find id ' + id + '. Returning default.');
     return -1;
+  },
+
+  // Returns the hours, minutes, seconds, and milliseconds from diff.
+  getParts: function(duration) {
+    if (typeof duration !== 'number') {
+      Logger.error('Duration must be passed as a number.');
+      return false;
+    }
+
+    const parts = {};
+    let runningDuration = duration;
+
+    parts.hours = Math.floor(runningDuration/MS_PER_H);
+    runningDuration = runningDuration % MS_PER_H;
+
+    parts.minutes = Math.floor(runningDuration/MS_PER_M);
+    runningDuration = runningDuration % MS_PER_M;
+
+    parts.seconds = Math.floor(runningDuration/MS_PER_S);
+    runningDuration = runningDuration % MS_PER_S;
+
+    parts.milliseconds = runningDuration;
+
+    return parts;
   },
 
   // Start an interval to periodically persist the state.

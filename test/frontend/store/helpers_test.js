@@ -109,4 +109,40 @@ describe('HelpersTest', function() {
       assert.equal(Helpers.findProject(projects, 'test50'), 49);
     });
   });
+
+  describe('#getParts', function() {
+    it('returns false when no number is provided', function() {
+      assert.isFalse(Helpers.getParts("1"));
+    });
+
+    it('returns 0 when 0 is provided', function() {
+      const actual = Helpers.getParts(0);
+      assert.deepEqual({
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+      }, actual);
+    });
+
+    it('returns parts on boundary', function() {
+      const actual = Helpers.getParts(1 + (1000) + (1000 * 60) + (1000 * 3600));
+      assert.deepEqual({
+        hours: 1,
+        minutes: 1,
+        seconds: 1,
+        milliseconds: 1,
+      }, actual);
+    });
+
+    it('returns parts regular', function() {
+      const actual = Helpers.getParts(39231);
+      assert.deepEqual({
+        hours: 0,
+        minutes: 0,
+        seconds: 39,
+        milliseconds: 231,
+      }, actual);
+    });
+  });
 });

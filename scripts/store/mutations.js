@@ -2,6 +2,121 @@ const CURRENT_TIME = require('../utils/time');
 const Helpers = require('./helpers');
 const Logger = require('../utils/logger');
 const Validator = require('validator');
+const { ipcRenderer } = require('electron');
+const Moment = require('moment-timezone');
+
+/**
+ * Formats the projects in a flat format where each start/stop time in the
+ * project receives its own entry. Also, each artificalTime in the project gets
+ * an entry as well.
+ */
+const formatSS = function(projects) {
+  // We need to flatten each of the increments into it's own row, then
+  // format the time segments in the user's local time.
+  const formattedData = [];
+  const FORMAT_STRING = 'MM/DD/YYYY hh:mm:ss.SSS A z';
+  projects.forEach((p) => {
+    if (p.increments.length === 0 && p.artificialTime.length === 0) {
+      formattedData.push({ name: p.name });
+      return;
+    }
+
+    if (p.increments.length > 0) {
+      p.increments.forEach((i) => {
+        formattedData.push({
+          name: p.name,
+          start: Moment.tz(i.start, Moment.tz.guess())
+            .format(FORMAT_STRING),
+          end: Moment.tz(i.end, Moment.tz.guess()).format(FORMAT_STRING),
+        });
+      });
+    }
+
+    if (p.artificialTime.length > 0) {
+      p.artificialTime.forEach((a) => {
+        formattedData.push({
+          name: p.name,
+          manual: a
+        });
+      });
+    }
+  });
+  return formattedData;
+}
+
+/**
+ * Formats the projects where the total time spent working on a project for a
+ * given day is output. Artificial time is added seperately.
+ */
+const formatD = function(projects) {
+  const formattedData = [];
+  const userTz = Moment.tz.guess();
+  const DATE_FORMAT = 'MM/DD/YYYY';
+  projects.forEach((p) => {
+    if (p.increments.length === 0 && p.artificialTime.length === 0) {
+      formattedData.push({
+        name: p.name,
+      });
+      return;
+    }
+
+    if (p.increments.length > 0) {
+      let prevEnd = null;
+      let running = 0;
+      p.increments.forEach((i) => {
+        if (prevEnd != null) {
+          // Check if the start of this interval crosses a date boundary form the
+          // previous interval.
+          if (prevEnd.isBefore(Moment.tz(i.start, userTz), 'day')) {
+            // This new interval represents another date. Export what we have
+            // and restart counting.
+            const parts = Helpers.getParts(running);
+            formattedData.push({
+              name: p.name,
+              date: prevEnd.format(DATE_FORMAT),
+              hours: parts.hours,
+              minutes: parts.minutes,
+              seconds: parts.seconds,
+              milliseconds: parts.milliseconds,
+            });
+            running = 0;
+          }
+        }
+
+        prevEnd = Moment.tz(i.start, userTz);
+        running += i.end - i.start;
+      });
+
+      // No matter what, we will not have processed the last incrmeent.
+      const parts = Helpers.getParts(running);
+      formattedData.push({
+        name: p.name,
+        date: prevEnd.format(DATE_FORMAT),
+        hours: parts.hours,
+        minutes: parts.minutes,
+        seconds: parts.seconds,
+        milliseconds: parts.milliseconds,
+      });
+    }
+
+    if (p.artificialTime.length > 0) {
+      // Aritifical time is in seconds, we want milliseconds.
+      const totalArtificialTime = p.artificialTime
+          .reduce((sum, a) => sum + (a * 1000), 0);
+      const parts = Helpers.getParts(Math.abs(totalArtificialTime));
+      const mutliplier = totalArtificialTime > 0 ? 1 : -1;
+      formattedData.push({
+        name: p.name,
+        hours: parts.hours != 0 ? parts.hours * mutliplier : parts.hours,
+        minutes: parts.minutes != 0 ? parts.minutes * mutliplier : parts.minutes,
+        seconds: parts.seconds != 0 ? parts.seconds * mutliplier : parts.seconds,
+        milliseconds: parts.milliseconds != 0 ?
+            parts.milliseconds * mutliplier : parts.milliseconds,
+      });
+    }
+  });
+  return formattedData;
+}
 
 module.exports = {
   /**
@@ -75,6 +190,38 @@ module.exports = {
   clearProjects: function(state) {
     state.projects = [];
     Helpers.persistState(state.projects);
+  },
+
+  exportToCsv: function(state, payload) {
+    if (typeof payload !== 'object' || typeof payload.type !== 'string') {
+      Logger.error('No type provided.');
+      return false;
+    }
+
+    const projects = Helpers.deactivateAll(Helpers.deepCopy(state.projects));
+    let formattedData = [];
+    switch(payload.type) {
+      case 'SS':
+        formattedData = {
+          fields: ['name', 'start', 'end', 'manual'],
+          data: formatSS(projects),
+        };
+        break;
+      case 'D':
+        formattedData = {
+          fields: ['name', 'date', 'hours', 'minutes', 'seconds', 'milliseconds'],
+          data: formatD(projects)
+        };
+        break;
+      default:
+        Logger.error('Incorrect type. Could not parse using: ' + payload.type);
+        return false;
+    }
+
+    ipcRenderer.send('export', {
+      type: 'CSV',
+      data: formattedData,
+    });
   },
 
   initializeProjects: function(state, newProjects) {

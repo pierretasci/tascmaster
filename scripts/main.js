@@ -4,15 +4,17 @@ Vue.use(Vuex)
 const { ipcRenderer, remote } = require('electron');
 const Logger = require('./utils/logger');
 const Menu = require('./menu');
+const MenuBar = require('./MenuBar.vue');
 const NewProject = require('./NewProject.vue');
 const ProjectItem = require('./ProjectItem.vue');
 const store = require('./store');
 
 // Includes the size of the title bar and the padding around the body.
+const MENU_HEIGHT = 20;
 const PIXELS_PER_PROJECT = 37;
 
 function getWindowHeight(numProjects) {
-  return (numProjects + 1) * PIXELS_PER_PROJECT;
+  return ((numProjects + 1) * PIXELS_PER_PROJECT) + MENU_HEIGHT;
 }
 
 var app = new Vue({
@@ -20,6 +22,7 @@ var app = new Vue({
   components: {
     'new-project': NewProject,
     'project-item': ProjectItem,
+    'menu-bar': MenuBar,
   },
   computed: {
     projects: function() {

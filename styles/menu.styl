@@ -1,0 +1,48 @@
+@require 'colors'
+
+.menu-bar
+  height: 2.6rem
+  display: flex
+  align-items: center
+  background-color: tm-background
+  color: white
+  padding: 0 0.5rem
+
+  .menu
+    position: relative
+
+    .title
+      padding: 1rem 0
+      font-size: 1.6rem
+
+    .submenu
+      display: none
+      position: absolute
+      left: 0
+      top: 3rem
+      background: white
+      color: black
+      box-shadow: 0 1px 10px 1px #666666
+      min-width: 300px
+
+      .option
+        padding: 0.5rem
+        font-size: 1.4rem
+        cursor: pointer
+
+        .subtitle
+          font-size: 1rem
+          color: #aaa
+
+        &:hover
+          background-color: tm-smoke
+
+    &:hover .submenu
+      display: block
+
+    &:hover > .title
+      color: tm-smoke
+      text-decoration: underline
+
+    & + .menu
+      margin-left: 1rem
