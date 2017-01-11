@@ -9,6 +9,8 @@
           .subtitle Projects are listed with total duration per day.
     .menu
       .title Actions
+      .submenu
+          .option(v-on:click="clearAllProjects") Clear All Projects
 </template>
 
 <script>
@@ -16,6 +18,11 @@ const Logger = require('./utils/logger');
 
 module.exports = {
   methods: {
+    clearAllProjects: function() {
+      Logger.info('requested to clear all projects');
+      this.$store.commit('clearProjects');
+    },
+
     exportToCSVSS: function() {
       Logger.info('exporting projects to csv stop and start');
       this.$store.commit('exportToCsv', {

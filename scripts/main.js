@@ -3,7 +3,6 @@ const Vuex = require('vuex');
 Vue.use(Vuex)
 const { ipcRenderer, remote } = require('electron');
 const Logger = require('./utils/logger');
-const Menu = require('./menu');
 const MenuBar = require('./MenuBar.vue');
 const NewProject = require('./NewProject.vue');
 const ProjectItem = require('./ProjectItem.vue');
