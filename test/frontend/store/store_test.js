@@ -292,7 +292,7 @@ describe('StoreTest', function() {
 
       Mutations.exportToCsv(state, { type: 'SS' });
 
-      const expected = { fields: ['name', 'start', 'end', 'manual']};
+      const expected = { fields: ['name', 'start', 'end', 'manual (s)']};
       expected.data = [{
         name: 'Test 1',
         start: '01/01/2017 01:00:00.000 AM PST',
@@ -321,7 +321,7 @@ describe('StoreTest', function() {
 
       Mutations.exportToCsv(state, { type: 'SS' });
 
-      const expected = { fields: ['name', 'start', 'end', 'manual']};
+      const expected = { fields: ['name', 'start', 'end', 'manual (s)']};
       expected.data = [
         {
           name: 'Test 1',
@@ -377,7 +377,7 @@ describe('StoreTest', function() {
 
       Mutations.exportToCsv(state, { type: 'SS' });
 
-      const expected = { fields: ['name', 'start', 'end', 'manual']};
+      const expected = { fields: ['name', 'start', 'end', 'manual (s)']};
       expected.data = [
         {
           name: 'Test 1',

@@ -1,124 +1,10 @@
 const CURRENT_TIME = require('../utils/time');
+const Formatters = require('./formatters');
 const Helpers = require('./helpers');
 const Logger = require('../utils/logger');
 const Validator = require('validator');
 const { ipcRenderer } = require('electron');
 const Moment = require('moment-timezone');
-
-/**
- * Formats the projects in a flat format where each start/stop time in the
- * project receives its own entry. Also, each artificalTime in the project gets
- * an entry as well.
- */
-const formatSS = function(projects) {
-  // We need to flatten each of the increments into it's own row, then
-  // format the time segments in the user's local time.
-  const formattedData = [];
-  const FORMAT_STRING = 'MM/DD/YYYY hh:mm:ss.SSS A z';
-  const USER_TZ = Moment.tz.guess();
-  projects.forEach((p) => {
-    if (p.increments.length === 0 && p.artificialTime.length === 0) {
-      formattedData.push({ name: p.name });
-      return;
-    }
-
-    if (p.increments.length > 0) {
-      p.increments.forEach((i) => {
-        formattedData.push({
-          name: p.name,
-          start: Moment.tz(i.start, USER_TZ).format(FORMAT_STRING),
-          end: Moment.tz(i.end, USER_TZ).format(FORMAT_STRING),
-        });
-      });
-    }
-
-    if (p.artificialTime.length > 0) {
-      p.artificialTime.forEach((a) => {
-        formattedData.push({
-          name: p.name,
-          end: Moment.tz(a.timestamp, USER_TZ).format(FORMAT_STRING),
-          manual: a.diff,
-        });
-      });
-    }
-  });
-  return formattedData;
-}
-
-/**
- * Formats the projects where the total time spent working on a project for a
- * given day is output. Artificial time is added seperately.
- */
-const formatD = function(projects) {
-  const formattedData = [];
-  const USER_TIMEZONE = Moment.tz.guess();
-  const DATE_FORMAT = 'MM/DD/YYYY';
-  projects.forEach((p) => {
-    if (p.increments.length === 0 && p.artificialTime.length === 0) {
-      formattedData.push({
-        name: p.name,
-      });
-      return;
-    }
-
-    const all_intervals = (p.increments || [])
-      .concat(p.artificialTime)
-      .map((a) => {
-        if (a.hasOwnProperty('diff')) {
-          return {
-            diff: a.diff * 1000,
-            timestamp: a.timestamp
-          };
-        }
-
-        return {
-          diff: a.end - a.start,
-          timestamp: a.end,
-        };
-      })
-      .sort((l, r) => {
-        return l.timestamp - r.timestamp;
-      });
-
-    let prevEnd = null;
-    let running = 0;
-    all_intervals.forEach((i) => {
-      if (prevEnd != null) {
-        // Check if the start of this interval crosses a date boundary form the
-        // previous interval.
-        if (prevEnd.isBefore(Moment.tz(i.timestamp, USER_TIMEZONE), 'day')) {
-          // This new interval represents another date. Export what we have
-          // and restart counting.
-          const parts = Helpers.getParts(running);
-          formattedData.push({
-            name: p.name,
-            date: prevEnd.format(DATE_FORMAT),
-            hours: parts.hours,
-            minutes: parts.minutes,
-            seconds: parts.seconds,
-            milliseconds: parts.milliseconds,
-          });
-          running = 0;
-        }
-      }
-
-      prevEnd = Moment.tz(i.timestamp, USER_TIMEZONE)
-      running += i.diff;
-    });
-
-    // No matter what, we will not have processed the last incrmeent.
-    const parts = Helpers.getParts(running);
-    formattedData.push({
-      name: p.name,
-      date: prevEnd.format(DATE_FORMAT),
-      hours: parts.hours,
-      minutes: parts.minutes,
-      seconds: parts.seconds,
-      milliseconds: parts.milliseconds,
-    });
-  });
-  return formattedData;
-}
 
 module.exports = {
   /**
@@ -207,16 +93,10 @@ module.exports = {
     let formattedData = [];
     switch(payload.type) {
       case 'SS':
-        formattedData = {
-          fields: ['name', 'start', 'end', 'manual'],
-          data: formatSS(projects),
-        };
+        formattedData = Formatters.SS(projects);
         break;
       case 'D':
-        formattedData = {
-          fields: ['name', 'date', 'hours', 'minutes', 'seconds', 'milliseconds'],
-          data: formatD(projects)
-        };
+        formattedData = Formatters.D(projects);
         break;
       default:
         Logger.error('Incorrect type. Could not parse using: ' + payload.type);
