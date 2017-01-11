@@ -75,7 +75,8 @@ module.exports = {
     displayTime: function() {
       // If we are not active, show the elapsed time. Otherwise, add in the
       // running time.
-      const artificialTime = this.project.artificialTime.reduce((a, b) => a + b, 0);
+      const artificialTime = this.project.artificialTime
+          .reduce((a, b) => a + b.diff, 0);
       const elapsedTime = Math.round(
         this.project.increments.reduce((runningTotal, icr) => {
           return runningTotal + (icr.end - icr.start);

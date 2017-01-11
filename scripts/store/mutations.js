@@ -15,6 +15,7 @@ const formatSS = function(projects) {
   // format the time segments in the user's local time.
   const formattedData = [];
   const FORMAT_STRING = 'MM/DD/YYYY hh:mm:ss.SSS A z';
+  const USER_TZ = Moment.tz.guess();
   projects.forEach((p) => {
     if (p.increments.length === 0 && p.artificialTime.length === 0) {
       formattedData.push({ name: p.name });
@@ -25,9 +26,8 @@ const formatSS = function(projects) {
       p.increments.forEach((i) => {
         formattedData.push({
           name: p.name,
-          start: Moment.tz(i.start, Moment.tz.guess())
-            .format(FORMAT_STRING),
-          end: Moment.tz(i.end, Moment.tz.guess()).format(FORMAT_STRING),
+          start: Moment.tz(i.start, USER_TZ).format(FORMAT_STRING),
+          end: Moment.tz(i.end, USER_TZ).format(FORMAT_STRING),
         });
       });
     }
@@ -36,7 +36,8 @@ const formatSS = function(projects) {
       p.artificialTime.forEach((a) => {
         formattedData.push({
           name: p.name,
-          manual: a
+          end: Moment.tz(a.timestamp, USER_TZ).format(FORMAT_STRING),
+          manual: a.diff,
         });
       });
     }
@@ -50,7 +51,7 @@ const formatSS = function(projects) {
  */
 const formatD = function(projects) {
   const formattedData = [];
-  const userTz = Moment.tz.guess();
+  const USER_TIMEZONE = Moment.tz.guess();
   const DATE_FORMAT = 'MM/DD/YYYY';
   projects.forEach((p) => {
     if (p.increments.length === 0 && p.artificialTime.length === 0) {
@@ -60,60 +61,61 @@ const formatD = function(projects) {
       return;
     }
 
-    if (p.increments.length > 0) {
-      let prevEnd = null;
-      let running = 0;
-      p.increments.forEach((i) => {
-        if (prevEnd != null) {
-          // Check if the start of this interval crosses a date boundary form the
-          // previous interval.
-          if (prevEnd.isBefore(Moment.tz(i.start, userTz), 'day')) {
-            // This new interval represents another date. Export what we have
-            // and restart counting.
-            const parts = Helpers.getParts(running);
-            formattedData.push({
-              name: p.name,
-              date: prevEnd.format(DATE_FORMAT),
-              hours: parts.hours,
-              minutes: parts.minutes,
-              seconds: parts.seconds,
-              milliseconds: parts.milliseconds,
-            });
-            running = 0;
-          }
+    const all_intervals = (p.increments || [])
+      .concat(p.artificialTime)
+      .map((a) => {
+        if (a.hasOwnProperty('diff')) {
+          return {
+            diff: a.diff * 1000,
+            timestamp: a.timestamp
+          };
         }
 
-        prevEnd = Moment.tz(i.start, userTz);
-        running += i.end - i.start;
+        return {
+          diff: a.end - a.start,
+          timestamp: a.end,
+        };
+      })
+      .sort((l, r) => {
+        return l.timestamp - r.timestamp;
       });
 
-      // No matter what, we will not have processed the last incrmeent.
-      const parts = Helpers.getParts(running);
-      formattedData.push({
-        name: p.name,
-        date: prevEnd.format(DATE_FORMAT),
-        hours: parts.hours,
-        minutes: parts.minutes,
-        seconds: parts.seconds,
-        milliseconds: parts.milliseconds,
-      });
-    }
+    let prevEnd = null;
+    let running = 0;
+    all_intervals.forEach((i) => {
+      if (prevEnd != null) {
+        // Check if the start of this interval crosses a date boundary form the
+        // previous interval.
+        if (prevEnd.isBefore(Moment.tz(i.timestamp, USER_TIMEZONE), 'day')) {
+          // This new interval represents another date. Export what we have
+          // and restart counting.
+          const parts = Helpers.getParts(running);
+          formattedData.push({
+            name: p.name,
+            date: prevEnd.format(DATE_FORMAT),
+            hours: parts.hours,
+            minutes: parts.minutes,
+            seconds: parts.seconds,
+            milliseconds: parts.milliseconds,
+          });
+          running = 0;
+        }
+      }
 
-    if (p.artificialTime.length > 0) {
-      // Aritifical time is in seconds, we want milliseconds.
-      const totalArtificialTime = p.artificialTime
-          .reduce((sum, a) => sum + (a * 1000), 0);
-      const parts = Helpers.getParts(Math.abs(totalArtificialTime));
-      const mutliplier = totalArtificialTime > 0 ? 1 : -1;
-      formattedData.push({
-        name: p.name,
-        hours: parts.hours != 0 ? parts.hours * mutliplier : parts.hours,
-        minutes: parts.minutes != 0 ? parts.minutes * mutliplier : parts.minutes,
-        seconds: parts.seconds != 0 ? parts.seconds * mutliplier : parts.seconds,
-        milliseconds: parts.milliseconds != 0 ?
-            parts.milliseconds * mutliplier : parts.milliseconds,
-      });
-    }
+      prevEnd = Moment.tz(i.timestamp, USER_TIMEZONE)
+      running += i.diff;
+    });
+
+    // No matter what, we will not have processed the last incrmeent.
+    const parts = Helpers.getParts(running);
+    formattedData.push({
+      name: p.name,
+      date: prevEnd.format(DATE_FORMAT),
+      hours: parts.hours,
+      minutes: parts.minutes,
+      seconds: parts.seconds,
+      milliseconds: parts.milliseconds,
+    });
   });
   return formattedData;
 }
@@ -148,7 +150,10 @@ module.exports = {
       return false;
     }
 
-    state.projects[index].artificialTime.push(payload.diff);
+    state.projects[index].artificialTime.push({
+      diff: payload.diff,
+      timestamp: CURRENT_TIME(),
+    });
     Helpers.persistState(state.projects);
   },
   addProject: function(state, project) {

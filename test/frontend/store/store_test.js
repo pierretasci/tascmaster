@@ -61,14 +61,16 @@ describe('StoreTest', function() {
     it('adds positive artificial time', function() {
       const state = { projects: [ Helpers.createNewProject('test', 'Test') ]};
       Mutations.addArtificialTime(state, { id: 'test', diff: 1 });
-      assert.deepEqual(state.projects[0].artificialTime, [1]);
+      assert.deepEqual(state.projects[0].artificialTime,
+          [{ diff: 1, timestamp: new Date().getTime() }]);
       assert.isTrue(persist.called);
     });
 
     it('adds negative artificial time', function() {
       const state = { projects: [ Helpers.createNewProject('test', 'Test') ]};
       Mutations.addArtificialTime(state, { id: 'test', diff: -1 });
-      assert.deepEqual(state.projects[0].artificialTime, [-1]);
+      assert.deepEqual(state.projects[0].artificialTime,
+          [{ diff: -1, timestamp: new Date().getTime() }]);
       assert.isTrue(persist.called);
     });
 
@@ -76,7 +78,10 @@ describe('StoreTest', function() {
       const state = { projects: [ Helpers.createNewProject('test', 'Test') ]};
       Mutations.addArtificialTime(state, { id: 'test', diff: -1 });
       Mutations.addArtificialTime(state, { id: 'test', diff: 10 });
-      assert.deepEqual(state.projects[0].artificialTime, [-1, 10]);
+      assert.deepEqual(state.projects[0].artificialTime, [
+        { diff: -1, timestamp: new Date().getTime() },
+        { diff: 10, timestamp: new Date().getTime() }
+      ]);
       assert.isTrue(persist.called);
     });
   });
@@ -303,7 +308,16 @@ describe('StoreTest', function() {
       const state = { projects: [
         Helpers.createNewProject('test', 'Test 1'),
       ]};
-      state.projects[0].artificialTime = [20, -10];
+      state.projects[0].artificialTime = [
+        {
+          diff: 20,
+          timestamp: moment('2017-01-01 01:00:00 PST').valueOf(),
+        },
+        {
+          diff: -10,
+          timestamp: moment('2017-01-01 10:00:00 PST').valueOf(),
+        }
+      ];
 
       Mutations.exportToCsv(state, { type: 'SS' });
 
@@ -311,10 +325,12 @@ describe('StoreTest', function() {
       expected.data = [
         {
           name: 'Test 1',
+          end: '01/01/2017 01:00:00.000 AM PST',
           manual: 20
         },
         {
           name: 'Test 1',
+          end: '01/01/2017 10:00:00.000 AM PST',
           manual: -10
         },
       ];
@@ -333,7 +349,16 @@ describe('StoreTest', function() {
         start: moment('2017-01-01 01:00:00 PST').valueOf(),
         end: moment('2017-01-01 02:00:00 PST').valueOf(),
       }];
-      state.projects[0].artificialTime = [20, -10];
+      state.projects[0].artificialTime = [
+        {
+          diff: 20,
+          timestamp: moment('2017-01-01 01:00:00 PST').valueOf(),
+        },
+        {
+          diff: -10,
+          timestamp: moment('2017-01-01 10:00:00 PST').valueOf(),
+        },
+      ];
 
       state.projects[1].increments = [
         {
@@ -345,7 +370,10 @@ describe('StoreTest', function() {
           end: moment('2017-01-01 15:00:01 PST').valueOf(),
         },
       ];
-      state.projects[1].artificialTime = [20000];
+      state.projects[1].artificialTime = [{
+        diff: 20000,
+        timestamp: moment('2017-01-02 01:00:00 PST').valueOf(),
+      }];
 
       Mutations.exportToCsv(state, { type: 'SS' });
 
@@ -358,10 +386,12 @@ describe('StoreTest', function() {
         },
         {
           name: 'Test 1',
+          end: '01/01/2017 01:00:00.000 AM PST',
           manual: 20,
         },
         {
           name: 'Test 1',
+          end: '01/01/2017 10:00:00.000 AM PST',
           manual: -10,
         },
         {
@@ -376,6 +406,7 @@ describe('StoreTest', function() {
         },
         {
           name: 'Test 2',
+          end: '01/02/2017 01:00:00.000 AM PST',
           manual: 20000,
         },
       ];
@@ -434,8 +465,10 @@ describe('StoreTest', function() {
         Helpers.createNewProject('test', 'Test 1'),
       ]};
       // These are in seconds.
-      state.projects[0].artificialTime =
-          [4 * 3600, -6 * 3600, 50 * 60];
+      state.projects[0].artificialTime = [
+        { diff: 4 * 3600, timestamp: moment('2017-01-01 PST').valueOf()},
+        { diff: -6 * 3600, timestamp: moment('2017-01-01 PST').valueOf()},
+        { diff: 50 * 60, timestamp: moment('2017-01-01 PST').valueOf()}];
 
       Mutations.exportToCsv(state, { type: 'D' });
 
@@ -443,6 +476,7 @@ describe('StoreTest', function() {
           ['name', 'date', 'hours', 'minutes', 'seconds', 'milliseconds']};
       expected.data = [{
         name: 'Test 1',
+        date: '01/01/2017',
         hours: -1,
         minutes: -10,
         seconds: 0,
@@ -520,7 +554,14 @@ describe('StoreTest', function() {
           end: moment('2017-01-02 10:00:00 PST').valueOf(),
         },
       ];
-      state.projects[0].artificialTime = [3600, -60];
+      state.projects[0].artificialTime = [{
+          diff: 3600,
+          timestamp: moment('2017-01-01 01:00:00 PST').valueOf(),
+        },
+        {
+          diff: -60,
+          timestamp: moment('2017-01-02 02:00:00 PST').valueOf(),
+        }];
       state.projects[1].increments = [
         {
           start: moment('2017-01-01 05:00:00 PST').valueOf(),
@@ -539,7 +580,10 @@ describe('StoreTest', function() {
           end: moment('2017-01-04 21:00:00 PST').valueOf(),
         },
       ];
-      state.projects[1].artificialTime = [-3600];
+      state.projects[1].artificialTime = [{
+        diff: -3600,
+        timestamp: moment('2017-01-05 01:00:00 PST').valueOf()
+      }];
 
       Mutations.exportToCsv(state, { type: 'D' });
 
@@ -549,7 +593,7 @@ describe('StoreTest', function() {
         {
           name: 'Test 1',
           date: '01/01/2017',
-          hours: 4,
+          hours: 5,
           minutes: 0,
           seconds: 0,
           milliseconds: 0
@@ -557,14 +601,7 @@ describe('StoreTest', function() {
         {
           name: 'Test 1',
           date: '01/02/2017',
-          hours: 10,
-          minutes: 0,
-          seconds: 0,
-          milliseconds: 0
-        },
-        {
-          name: 'Test 1',
-          hours: 0,
+          hours: 9,
           minutes: 59,
           seconds: 0,
           milliseconds: 0
@@ -603,6 +640,7 @@ describe('StoreTest', function() {
         },
         {
           name: 'Test 2',
+          date: '01/05/2017',
           hours: -1,
           minutes: 0,
           seconds: 0,

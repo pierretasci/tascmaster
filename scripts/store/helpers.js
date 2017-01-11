@@ -60,7 +60,7 @@ module.exports = {
     return -1;
   },
 
-  // Returns the hours, minutes, seconds, and milliseconds from diff.
+  // Returns the hours, minutes, seconds, and milliseconds from duration.
   getParts: function(duration) {
     if (typeof duration !== 'number') {
       Logger.error('Duration must be passed as a number.');
@@ -68,18 +68,23 @@ module.exports = {
     }
 
     const parts = {};
-    let runningDuration = duration;
+    let runningDuration = Math.abs(duration);
+    const multiplier = duration < 0 ? -1 : 1;
 
     parts.hours = Math.floor(runningDuration/MS_PER_H);
+    parts.hours = parts.hours != 0 ? parts.hours * multiplier : 0;
     runningDuration = runningDuration % MS_PER_H;
 
     parts.minutes = Math.floor(runningDuration/MS_PER_M);
+    parts.minutes = parts.minutes != 0 ? parts.minutes * multiplier : 0;
     runningDuration = runningDuration % MS_PER_M;
 
     parts.seconds = Math.floor(runningDuration/MS_PER_S);
+    parts.seconds = parts.seconds != 0 ? parts.seconds * multiplier : 0;
     runningDuration = runningDuration % MS_PER_S;
 
-    parts.milliseconds = runningDuration;
+    parts.milliseconds = runningDuration != 0 ?
+        runningDuration * multiplier : 0;
 
     return parts;
   },
