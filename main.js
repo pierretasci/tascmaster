@@ -1,7 +1,7 @@
 'use strict';
 
 const electron = require('electron');
-const {app, BrowserWindow, ipcMain} = electron;
+const {app, BrowserWindow, ipcMain, globalShortcut} = electron;
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
@@ -20,7 +20,6 @@ function createWindow () {
   let display = electron.screen.getPrimaryDisplay();
   // Since we can't dynamically resize this for windows, we need to set an good starting height.
   const startingHeight = (process.platform === 'win32' ? 300 : 30);
-
 
   // Create the browser window.
   win = new BrowserWindow({
@@ -43,11 +42,34 @@ function createWindow () {
 
   // Emitted when the window is closed.
   win.on('closed', () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     win = null;
   });
+
+  // Register our shortcuts.
+  const altLeft = globalShortcut.register('Alt+Left', () => {
+    const rectangle = win.getBounds();
+    rectangle.x = 0;
+    win.setBounds(rectangle, true);
+  });
+  const altRight = globalShortcut.register('Alt+Right', () => {
+    const rectangle = win.getBounds();
+    rectangle.x = display.bounds.width - rectangle.width;
+    win.setBounds(rectangle, true);
+  });
+  const altUp = globalShortcut.register('Alt+Up', () => {
+    const rectangle = win.getBounds();
+    rectangle.y = 0;
+    win.setBounds(rectangle, true);
+  });
+  const altDown = globalShortcut.register('Alt+Down', () => {
+    const rectangle = win.getBounds();
+    rectangle.y = display.bounds.height - rectangle.height;
+    win.setBounds(rectangle, true);
+  });
+
+  if (!altLeft || !altRight || !altUp || !altDown) {
+    console.error('Could not register global shortcuts');
+  }
 }
 
 // This method will be called when Electron has finished
@@ -73,11 +95,6 @@ app.on('activate', () => {
 });
 
 ipcMain.on('updateHeight', (e, nHeight) => {
-  // Windows does not support this so just do nothing.
-  if (process.platform === 'win32') {
-    return;
-  }
-
   const rectangle = win.getBounds();
   rectangle.height = nHeight + TITLE_BAR_SIZE;
   win.setBounds(rectangle, true);
