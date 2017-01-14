@@ -51,7 +51,7 @@ module.exports = {
     });
     return {
       data: formattedData,
-      fields: ['name', 'start', 'end', 'manual (s)']
+      fields: ['name', 'start', 'end', 'manual']
     };
   },
 
