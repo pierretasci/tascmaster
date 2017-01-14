@@ -7,6 +7,7 @@ const MenuBar = require('./MenuBar.vue');
 const NewProject = require('./NewProject.vue');
 const ProjectItem = require('./ProjectItem.vue');
 const store = require('./store');
+const Toast = require('./Toast.vue');
 
 // Includes the size of the title bar and the padding around the body.
 const MENU_HEIGHT = 20;
@@ -22,6 +23,7 @@ var app = new Vue({
     'new-project': NewProject,
     'project-item': ProjectItem,
     'menu-bar': MenuBar,
+    'toast': Toast,
   },
   computed: {
     projects: function() {
