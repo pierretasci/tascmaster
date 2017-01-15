@@ -15,6 +15,7 @@ const store = new Vuex.Store({
   state: {
     projects: [],
     currentTime: CURRENT_TIME(),
+    toaster: ''
   },
   mutations: require('./mutations'),
 });
@@ -30,3 +31,8 @@ ipcRenderer.once('receiveInitialState', (e, initialState) => {
   store.commit('initializeProjects', initialState);
 });
 ipcRenderer.send('loadInitialState');
+
+// Listen for the saving of the file.
+ipcRenderer.on('fileSaved', () => {
+  store.commit('sendToast', 'File Saved');
+});

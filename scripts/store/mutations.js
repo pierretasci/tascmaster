@@ -133,6 +133,14 @@ module.exports = {
     Helpers.persistState(state.projects);
   },
 
+  sendToast: function(state, message) {
+    console.log('Send Toast');
+    state.toaster = message;
+    setTimeout(() => {
+      state.toaster = '';
+    }, 1500);
+  },
+
   stopTimer: function(state, payload) {
     const data = Object.assign({}, payload);
 
