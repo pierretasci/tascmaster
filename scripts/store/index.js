@@ -23,7 +23,9 @@ module.exports = store;
 
 // == RUNNABLE ==
 let persistStateTicker = window.setInterval(() => {
+  if (store.state.projects.length > 0) {
     Helpers.persistState(store.state.projects);
+  }
 }, 5000);
 
 // Send a request to load the intial state of the app.
