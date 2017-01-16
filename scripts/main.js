@@ -10,11 +10,17 @@ const store = require('./store');
 const Toast = require('./Toast.vue');
 
 // Includes the size of the title bar and the padding around the body.
-const MENU_HEIGHT = 20;
-const PIXELS_PER_PROJECT = 37;
+const MENU_HEIGHT = 28;
+const PIXELS_PER_PROJECT = 32;
 
 function getWindowHeight(numProjects) {
-  return ((numProjects + 1) * PIXELS_PER_PROJECT) + MENU_HEIGHT;
+  if (numProjects === 0) {
+    return MENU_HEIGHT + PIXELS_PER_PROJECT;
+  }
+  // return ((numProjects + 1) * PIXELS_PER_PROJECT) + MENU_HEIGHT;
+  const body = document.body;
+  const html = document.documentElement;
+  return Math.max(body.offsetHeight, html.clientHeight, html.offsetHeight);
 }
 
 var app = new Vue({
@@ -36,9 +42,11 @@ var app = new Vue({
   store,
   watch: {
     projects: function(newProjects) {
-      const newHeight = getWindowHeight(newProjects.length || 0);
-      Logger.info('Updating height to ' + newHeight);
-      ipcRenderer.send('updateHeight', newHeight);
+      setTimeout(() => {
+        const newHeight = getWindowHeight(newProjects.length || 0);
+        Logger.info('Updating height to ' + newHeight);
+        ipcRenderer.send('updateHeight', newHeight);
+      }, 15);
     }
   }
 });

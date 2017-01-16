@@ -10,7 +10,6 @@ const Validator = require('validator');
 module.exports = {
   computed: {
     popToaster: function() {
-      console.log('Toast?');
       return typeof this.toast === 'string' &&
           !Validator.isEmpty(this.toast);
     },

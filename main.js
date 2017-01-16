@@ -6,10 +6,11 @@ const path = require('path');
 const url = require('url');
 const fs = require('fs');
 const { readState, writeState } = require('./lib/persistence');
+const Positioner = require('electron-positioner');
 const { exec } = require('child_process');
 require('./lib/export');
 
-const DEFAULT_WINDOW_WIDTH = 400;
+const DEFAULT_WINDOW_WIDTH = 200;
 const TITLE_BAR_SIZE = 22;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -27,6 +28,7 @@ function createWindow () {
     frame: false,
     height: startingHeight,
     transparent: true,
+    // useContentSize: true,
     width: DEFAULT_WINDOW_WIDTH,
     x: display.bounds.width - DEFAULT_WINDOW_WIDTH,
     y: 0,
@@ -45,26 +47,24 @@ function createWindow () {
     win = null;
   });
 
+  const positioner = new Positioner(win);
+
   // Register our shortcuts.
-  const altLeft = globalShortcut.register('Alt+Left', () => {
+  const altLeft = globalShortcut.register('CmdOrCtrl+Alt+Left', () => {
     const rectangle = win.getBounds();
-    rectangle.x = 0;
-    win.setBounds(rectangle, true);
+    positioner.move(rectangle.y < 50 ? 'topLeft' : 'bottomLeft');
   });
-  const altRight = globalShortcut.register('Alt+Right', () => {
+  const altRight = globalShortcut.register('CmdOrCtrl+Alt+Right', () => {
     const rectangle = win.getBounds();
-    rectangle.x = display.bounds.width - rectangle.width;
-    win.setBounds(rectangle, true);
+    positioner.move(rectangle.y < 50 ? 'topRight' : 'bottomRight');
   });
-  const altUp = globalShortcut.register('Alt+Up', () => {
+  const altUp = globalShortcut.register('CmdOrCtrl+Alt+Up', () => {
     const rectangle = win.getBounds();
-    rectangle.y = 0;
-    win.setBounds(rectangle, true);
+    positioner.move(rectangle.x === 0 ? 'topLeft' : 'topRight');
   });
-  const altDown = globalShortcut.register('Alt+Down', () => {
+  const altDown = globalShortcut.register('CmdOrCtrl+Alt+Down', () => {
     const rectangle = win.getBounds();
-    rectangle.y = display.bounds.height - rectangle.height;
-    win.setBounds(rectangle, true);
+    positioner.move(rectangle.x === 0 ? 'bottomLeft' : 'bottomRight');
   });
 
   if (!altLeft || !altRight || !altUp || !altDown) {
@@ -96,7 +96,7 @@ app.on('activate', () => {
 
 ipcMain.on('updateHeight', (e, nHeight) => {
   const rectangle = win.getBounds();
-  rectangle.height = nHeight + TITLE_BAR_SIZE;
+  rectangle.height = nHeight;
   win.setBounds(rectangle, true);
 });
 
