@@ -10,8 +10,7 @@ const Positioner = require('electron-positioner');
 const { exec } = require('child_process');
 require('./lib/export');
 
-const DEFAULT_WINDOW_WIDTH = 200;
-const TITLE_BAR_SIZE = 22;
+const DEFAULT_WINDOW_WIDTH = 250;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -79,6 +78,7 @@ app.on('ready', createWindow)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
+  globalShortcut.unregisterAll();
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
@@ -108,4 +108,8 @@ ipcMain.on('loadInitialState', (e) => {
   readState((data) => {
     e.sender.send('receiveInitialState', data);
   });
+});
+
+ipcMain.on('close', () => {
+  win.close();
 });

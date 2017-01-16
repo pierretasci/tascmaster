@@ -39,24 +39,27 @@ input
   &.image
     width: 2.1rem
     height: 2.1rem
-    background-color: transparent
-    background-repeat: no-repeat
-    background-position: center
-    background-size: cover
+    background-color: black
+    mask-repeat: no-repeat
+    mask-position: center
+    mask-size: cover
+
+    &.white
+      background-color: white
 
     &.save
-      background-image: inline('../images/save.svg')
+      mask-image: inline('../images/save.svg')
 
     &.cancel
-      background-image: inline('../images/cancel.svg')
+      mask-image: inline('../images/cancel.svg')
 
     &.play
-      background-image: inline('../images/play.svg')
+      mask-image: inline('../images/play.svg')
 
     &.pause
-      background-image: inline('../images/pause.svg')
-      background-size: 1.8rem 1.8rem
+      mask-image: inline('../images/pause.svg')
+      mask-size: 1.8rem 1.8rem
 
     &.add
-      background-image: inline('../images/add.svg')
-      background-size: 1.8rem 1.8rem
+      mask-image: inline('../images/add.svg')
+      mask-size: 1.8rem 1.8rem

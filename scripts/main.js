@@ -10,7 +10,7 @@ const store = require('./store');
 const Toast = require('./Toast.vue');
 
 // Includes the size of the title bar and the padding around the body.
-const MENU_HEIGHT = 28;
+const MENU_HEIGHT = 29;
 const PIXELS_PER_PROJECT = 32;
 
 function getWindowHeight(numProjects) {
