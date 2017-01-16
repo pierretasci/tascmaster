@@ -1,6 +1,6 @@
 const Log = require('electron-log');
-const DEV_ENV = 'dev';
-const PROD_ENV = 'prod';
+const DEV_ENV = 'development';
+const PROD_ENV = 'production';
 
 const env = process.env.NODE_ENV || DEV_ENV;
 const LOG_FORMAT = '{y}/{m}/{d} {h}:{i}:{s}.{ms} {level}: {text}';
