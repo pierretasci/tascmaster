@@ -119,6 +119,10 @@ gulp.task('js-prod', ['clean-js'], function() {
             loader: 'babel-loader',
             exclude: /node_modules/
           },
+          {
+            test: /\.json$/,
+            loader: 'json-loader'
+          },
         ],
       },
       plugins: [
