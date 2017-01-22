@@ -148,7 +148,7 @@ module.exports = {
       return false;
     }
 
-    state.projects = Helpers.deactivateAll(state.projects);
+    state.projects = Helpers.deactivateAll(state.projects, data.id);
     Helpers.persistState(state.projects);
   },
 

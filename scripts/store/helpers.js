@@ -20,13 +20,19 @@ module.exports = {
   },
 
   /**
-   * Turn off (make not active) all of the provided projects. For any that were
-   * active, add an increment to them.
+   * Turn off (make not active) the provided projects. For any that were active,
+   * add an increment to them. If an optional filter is provided, will only turn
+   * off projects with an id matching the filter.
    */
-  deactivateAll: function(projects) {
+  deactivateAll: function(projects, filter) {
     const stopTime = CURRENT_TIME();
 
     return projects.map((p) => {
+      if (typeof filter !== 'undefined' && p.id !== filter) {
+        // Return this project as is with no changes.
+        return p;
+      }
+
       if (p.active) {
         p.increments.push({
           start: p.currentStart,

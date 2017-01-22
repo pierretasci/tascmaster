@@ -64,6 +64,30 @@ describe('HelpersTest', function() {
 
       assert.deepEqual(actual, [project]);
     });
+
+    it('should deactivate filter only', function() {
+      const project1 = Helpers.createNewProject('test_id', 'test_name');
+      const project2 = Helpers.createNewProject('test_id2', 'test_name_2');
+      project1.increments.push({
+        start: 100,
+        end: 200,
+      });
+      project1.active = true;
+      project1.currentStart = 1000;
+      project2.active = true;
+      project2.currentStart = 1000;
+
+      const actual = Helpers.deactivateAll([project1, project2], project2.id);
+
+      project2.active = false;
+      project2.currentStart = -1;
+      project2.increments.push({
+        start: 1000,
+        end: new Date().getTime(),
+      });
+
+      assert.deepEqual(actual, [project1, project2]);
+    });
   });
 
   describe('#createNewProject', function() {
