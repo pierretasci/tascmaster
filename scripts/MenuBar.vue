@@ -4,9 +4,9 @@
       .item
         .title Export
         .submenu
-          .option(v-on:click="exportToCSVSS") CSV - Start and Stop Times
+          .option(v-on:click="exportSS") Start and Stop Times
             .subtitle Each period of work (or manual time entry) becomes a row.
-          .option(v-on:click="exportToCSVD") CSV - Duration
+          .option(v-on:click="exportD") Duration
             .subtitle Projects are listed with total duration per day.
       .item
         .title Actions
@@ -31,16 +31,16 @@ module.exports = {
       ipcRenderer.send('close');
     },
 
-    exportToCSVSS: function() {
+    exportSS: function() {
       Logger.info('exporting projects to csv stop and start');
-      this.$store.commit('exportToCsv', {
+      this.$store.commit('export', {
         type: 'SS'
       });
     },
 
-    exportToCSVD: function() {
+    exportD: function() {
       Logger.info('exporting projects to csv durations');
-      this.$store.commit('exportToCsv', {
+      this.$store.commit('export', {
         type: 'D'
       });
     }

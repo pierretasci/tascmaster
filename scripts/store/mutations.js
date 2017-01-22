@@ -83,7 +83,7 @@ module.exports = {
     Helpers.persistState(state.projects);
   },
 
-  exportToCsv: function(state, payload) {
+  export: function(state, payload) {
     if (typeof payload !== 'object' || typeof payload.type !== 'string') {
       Logger.error('No type provided.');
       return false;
@@ -104,7 +104,6 @@ module.exports = {
     }
 
     ipcRenderer.send('export', {
-      type: 'CSV',
       data: formattedData,
     });
   },

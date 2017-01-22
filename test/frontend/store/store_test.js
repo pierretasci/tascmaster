@@ -275,10 +275,10 @@ describe('StoreTest', function() {
     });
   });
 
-  describe('#exportToCsv SS', function() {
+  describe('#exportSS', function() {
     it('returns false on incorrect input', function() {
-      assert.isFalse(Mutations.exportToCsv({}));
-      assert.isFalse(Mutations.exportToCsv({}, {}));
+      assert.isFalse(Mutations.export({}));
+      assert.isFalse(Mutations.export({}, {}));
     });
 
     it('formats one project, one increment', function() {
@@ -290,9 +290,9 @@ describe('StoreTest', function() {
         end: moment('2017-01-01 01:01:00 PST').valueOf(),
       }];
 
-      Mutations.exportToCsv(state, { type: 'SS' });
+      Mutations.export(state, { type: 'SS' });
 
-      const expected = { fields: ['name', 'start', 'end', 'manual (s)']};
+      const expected = { fields: ['name', 'start', 'end', 'manual']};
       expected.data = [{
         name: 'Test 1',
         start: '01/01/2017 01:00:00.000 AM PST',
@@ -301,7 +301,7 @@ describe('StoreTest', function() {
 
       assert.isTrue(ipcRendererSend.called);
       const actual = ipcRendererSend.getCall(0).args[1];
-      assert.deepEqual({ type: 'CSV', data: expected }, actual);
+      assert.deepEqual({ data: expected }, actual);
     });
 
     it('formats one project, two artifical times', function() {
@@ -319,9 +319,9 @@ describe('StoreTest', function() {
         }
       ];
 
-      Mutations.exportToCsv(state, { type: 'SS' });
+      Mutations.export(state, { type: 'SS' });
 
-      const expected = { fields: ['name', 'start', 'end', 'manual (s)']};
+      const expected = { fields: ['name', 'start', 'end', 'manual']};
       expected.data = [
         {
           name: 'Test 1',
@@ -337,7 +337,7 @@ describe('StoreTest', function() {
 
       assert.isTrue(ipcRendererSend.called);
       const actual = ipcRendererSend.getCall(0).args[1];
-      assert.deepEqual({ type: 'CSV', data: expected }, actual);
+      assert.deepEqual({ data: expected }, actual);
     });
 
     it('formats two projects, mix artifical times and real times', function() {
@@ -375,9 +375,9 @@ describe('StoreTest', function() {
         timestamp: moment('2017-01-02 01:00:00 PST').valueOf(),
       }];
 
-      Mutations.exportToCsv(state, { type: 'SS' });
+      Mutations.export(state, { type: 'SS' });
 
-      const expected = { fields: ['name', 'start', 'end', 'manual (s)']};
+      const expected = { fields: ['name', 'start', 'end', 'manual']};
       expected.data = [
         {
           name: 'Test 1',
@@ -413,14 +413,14 @@ describe('StoreTest', function() {
 
       assert.isTrue(ipcRendererSend.called);
       const actual = ipcRendererSend.getCall(0).args[1];
-      assert.deepEqual({ type: 'CSV', data: expected }, actual);
+      assert.deepEqual({ data: expected }, actual);
     });
   });
 
-  describe('#exportToCsv D', function() {
+  describe('#exportD', function() {
     it('returns false on incorrect input', function() {
-      assert.isFalse(Mutations.exportToCsv({}));
-      assert.isFalse(Mutations.exportToCsv({}, {}));
+      assert.isFalse(Mutations.export({}));
+      assert.isFalse(Mutations.export({}, {}));
     });
 
     it('formats a single day of increments', function() {
@@ -442,7 +442,7 @@ describe('StoreTest', function() {
         },
       ];
 
-      Mutations.exportToCsv(state, { type: 'D' });
+      Mutations.export(state, { type: 'D' });
 
       const expected = { fields:
           ['name', 'date', 'hours', 'minutes', 'seconds', 'milliseconds']};
@@ -457,7 +457,7 @@ describe('StoreTest', function() {
 
       assert.isTrue(ipcRendererSend.called);
       const actual = ipcRendererSend.getCall(0).args[1];
-      assert.deepEqual({ type: 'CSV', data: expected }, actual);
+      assert.deepEqual({ data: expected }, actual);
     });
 
     it('formats a single day of artificial times', function() {
@@ -470,7 +470,7 @@ describe('StoreTest', function() {
         { diff: -6 * 3600, timestamp: moment('2017-01-01 PST').valueOf()},
         { diff: 50 * 60, timestamp: moment('2017-01-01 PST').valueOf()}];
 
-      Mutations.exportToCsv(state, { type: 'D' });
+      Mutations.export(state, { type: 'D' });
 
       const expected = { fields:
           ['name', 'date', 'hours', 'minutes', 'seconds', 'milliseconds']};
@@ -485,7 +485,7 @@ describe('StoreTest', function() {
 
       assert.isTrue(ipcRendererSend.called);
       const actual = ipcRendererSend.getCall(0).args[1];
-      assert.deepEqual({ type: 'CSV', data: expected }, actual);
+      assert.deepEqual({ data: expected }, actual);
     });
 
     it('formats a multiple days of increments', function() {
@@ -507,7 +507,7 @@ describe('StoreTest', function() {
         },
       ];
 
-      Mutations.exportToCsv(state, { type: 'D' });
+      Mutations.export(state, { type: 'D' });
 
       const expected = { fields:
           ['name', 'date', 'hours', 'minutes', 'seconds', 'milliseconds']};
@@ -532,7 +532,7 @@ describe('StoreTest', function() {
 
       assert.isTrue(ipcRendererSend.called);
       const actual = ipcRendererSend.getCall(0).args[1];
-      assert.deepEqual({ type: 'CSV', data: expected }, actual);
+      assert.deepEqual({ data: expected }, actual);
     });
 
     it('formats a multiple days of increments and artificial time', function() {
@@ -585,7 +585,7 @@ describe('StoreTest', function() {
         timestamp: moment('2017-01-05 01:00:00 PST').valueOf()
       }];
 
-      Mutations.exportToCsv(state, { type: 'D' });
+      Mutations.export(state, { type: 'D' });
 
       const expected = { fields:
           ['name', 'date', 'hours', 'minutes', 'seconds', 'milliseconds']};
@@ -650,7 +650,7 @@ describe('StoreTest', function() {
 
       assert.isTrue(ipcRendererSend.called);
       const actual = ipcRendererSend.getCall(0).args[1];
-      assert.deepEqual({ type: 'CSV', data: expected }, actual);
+      assert.deepEqual({ data: expected }, actual);
     });
   });
 });

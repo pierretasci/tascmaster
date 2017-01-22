@@ -10,7 +10,7 @@ const Positioner = require('electron-positioner');
 const { exec } = require('child_process');
 require('./lib/export');
 
-const DEFAULT_WINDOW_WIDTH = 250;
+const DEFAULT_WINDOW_WIDTH = 300;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
