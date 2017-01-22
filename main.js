@@ -18,9 +18,8 @@ let win;
 
 function createWindow () {
   let display = electron.screen.getPrimaryDisplay();
-  // Since we can't dynamically resize this for windows, we need to set an good starting height.
-  const startingHeight = (process.platform === 'win32' ? 300 : 30);
-
+  const startingHeight = 30;
+  
   // Create the browser window.
   win = new BrowserWindow({
     alwaysOnTop: true,
